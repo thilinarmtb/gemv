@@ -60,6 +60,10 @@ void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
   gemv_benchmark_log(benchmark->verbose, "run_backend: elapsed: %f", elapsed);
 
   backend_list[backend].finalize();
+
+  gemv_benchmark_free(&A);
+  gemv_benchmark_free(&x);
+  gemv_benchmark_free(&y);
 }
 
 void gemv_benchmark_unregister_backends(void) {

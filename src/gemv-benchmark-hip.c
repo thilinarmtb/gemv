@@ -40,6 +40,7 @@ static void finalize(void) {
   hipFree(d_A), d_A = NULL;
   hipFree(d_x), d_x = NULL;
   hipFree(d_y), d_y = NULL;
+  hipblasDestroy(handle), handle = NULL;
 }
 
 void gemv_benchmark_register_hip(void) {
