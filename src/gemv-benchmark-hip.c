@@ -30,7 +30,7 @@ static void init(int device, int n_, const float *A, const float *x) {
 static void benchmark(int num_repeats, float *y) {
   float alpha = 1.0f, beta = 0.0f;
   for (int i = 0; i < num_repeats; ++i) {
-    hipblasSgemv(handle, HIPBLAS_OP_N, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y,
+    hipblasSgemv(handle, HIPBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y,
                  1);
   }
   hipMemcpy(y, d_y, n * sizeof(float), hipMemcpyDeviceToDevice);

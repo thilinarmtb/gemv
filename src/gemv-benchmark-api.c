@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 static void print_help(const char *name, int status) {
   FILE *fp = (status == EXIT_SUCCESS) ? stdout : stderr;
@@ -110,6 +111,10 @@ struct gemv_benchmark_t *gemv_benchmark_init(int *argc, char ***argv) {
 #include "gemv-benchmark-backend-list.h"
 #undef GEMV_BENCHMARK_BACKEND
 
+  // Initialize the random number generator.
+  srand(time(NULL));
+
+  // Initialize the gemv_benchmark_t struct.
   struct gemv_benchmark_t *gemv_benchmark =
       gemv_benchmark_calloc(struct gemv_benchmark_t, 1);
   parse_opts(gemv_benchmark, argc, (char ***)argv);

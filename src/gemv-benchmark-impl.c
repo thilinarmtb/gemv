@@ -1,6 +1,7 @@
 #include "gemv-benchmark-impl.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -37,8 +38,7 @@ void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
     }
   }
   assert(backend >= 0);
-  gemv_benchmark_log(benchmark->verbose, "run_backend: %s",
-                     backend_list[backend].name);
+  gemv_benchmark_log(benchmark->verbose, "run_backend: %s", benchmark->backend);
 
   float *A = gemv_benchmark_calloc(float, benchmark->size * benchmark->size);
   for (int i = 0; i < benchmark->size * benchmark->size; i++)
@@ -50,13 +50,31 @@ void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
 
   float *y = gemv_benchmark_calloc(float, benchmark->size);
 
+  // Initialize the backend:
   backend_list[backend].init(benchmark->device, benchmark->size, A, x);
 
+  // Run the benchmark:
   clock_t start = clock();
   backend_list[backend].benchmark(benchmark->num_repeats, y);
   clock_t end = clock();
   double elapsed =
       (double)(end - start) / (CLOCKS_PER_SEC * benchmark->num_repeats);
+
+  // Check correctness:
+  float *y_ref = gemv_benchmark_calloc(float, benchmark->size);
+  for (int i = 0; i < benchmark->size; i++) {
+    float sum = 0.0f;
+    for (int j = 0; j < benchmark->size; j++)
+      sum += A[i * benchmark->size + j] * x[j];
+    y_ref[i] = sum;
+  }
+  for (int i = 0; i < benchmark->size; i++) {
+    if (fabs(y[i] - y_ref[i]) / y_ref[i] > 1e-5)
+      gemv_benchmark_error("run_backend: %s: y[%d] = %f != %f",
+                           benchmark->backend, i, y[i], y_ref[i]);
+  }
+  gemv_benchmark_free(&y_ref);
+
   gemv_benchmark_log(benchmark->verbose, "run_backend: elapsed: %f", elapsed);
 
   backend_list[backend].finalize();
