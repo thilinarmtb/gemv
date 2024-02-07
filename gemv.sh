@@ -5,6 +5,7 @@ function print_help() {
   echo "Options:"
   echo "  --help Print this help message and exit."
   echo "  --cc <compiler> Set the compiler to use for the build."
+  echo "  --cflags <compiler flags> Set the compiler flags for the build."
   echo "  --build-type <Release|Debug> Build type."
   echo "  --build-dir <build directory> Build directory."
   echo "  --install-prefix <install prefix> Install prefix."
@@ -16,6 +17,7 @@ function print_help() {
 
 # Set default values.
 : ${GEMV_CC:=cc}
+: ${GEMV_CFLAGS:="-O3 -g -mtune=native -march=native"}
 : ${GEMV_BUILD_TYPE:=Release}
 : ${GEMV_INSTALL_PREFIX:=`pwd`/install}
 : ${GEMV_BUILD_DIR:=`pwd`/build}
@@ -33,6 +35,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --cc)
       GEMV_CC="$2"
+      shift
+      shift
+      ;;
+    --cflags)
+      GEMV_CFLAGS="$2"
       shift
       shift
       ;;
