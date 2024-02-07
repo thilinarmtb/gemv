@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(gemvbenchmark VERSION 0.0.1 DESCRIPTION "Benchmark GEMV on GPUs"
+project(gemv VERSION 0.0.1 DESCRIPTION "Platform independent gemv on GPUs"
   LANGUAGES C)
 
 # Build Options:
@@ -7,9 +7,9 @@ option(ENABLE_CUDA "Build CUDA backend" OFF)
 option(ENABLE_HIP "Build HIP backend" OFF)
 
 # Build defaults:
-set(GEMV_BENCHMARK_VERBOSE 1)
-set(GEMV_BENCHMARK_DEVICE 0)
-set(GEMV_BENCHMARK_NUM_REPEATS 100)
+set(GEMV_VERBOSE 1)
+set(GEMV_DEVICE 0)
+set(GEMV_NUM_REPEATS 100)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -23,9 +23,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 configure_file(${CMAKE_SOURCE_DIR}/include/gemv-benchmark-defs.h.in
   ${CMAKE_SOURCE_DIR}/include/gemv-benchmark-defs.h @ONLY)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -g -mtune=native -march=native")
-
-set(GEMV_BENCHMARK_SOURCES src/gemv-benchmark-api.c src/gemv-benchmark-impl.c
+set(GEMV_SOURCES src/gemv-benchmark-api.c src/gemv-benchmark-impl.c
   src/gemv-benchmark-hip.c src/gemv-benchmark-dummy.c src/gemv-benchmark-log.c)
 
 find_package(HIP)
@@ -40,7 +38,7 @@ set(CMAKE_MODULE_PATH "${ROCM_PATH}/lib/cmake" ${CMAKE_MODULE_PATH})
 find_package(hipblas REQUIRED)
 find_package(rocblas REQUIRED)
 
-add_library(gemv SHARED ${GEMV_BENCHMARK_SOURCES})
+add_library(gemv SHARED ${GEMV_SOURCES})
 set_target_properties(gemv PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION 1
@@ -49,7 +47,10 @@ target_include_directories(gemv PRIVATE include)
 target_compile_options(gemv PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Wno-unused-function
   -Wno-unused-parameter -Wno-stringop-overflow>)
-target_link_libraries(gemv PRIVATE gemv::HIP roc::hipblas)
+
+if (HIP_FOUND)
+  target_link_libraries(gemv PRIVATE gemv::HIP)
+endif()
 
 macro(gemv_add_binary file_name)
   get_filename_component(target ${file_name} NAME_WE)

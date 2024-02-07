@@ -40,9 +40,9 @@ static void parse_opts(struct gemv_benchmark_t *gemv_benchmark, int *argc,
       {0, 0, 0, 0}};
 
   // Default values for optional arguments.
-  gemv_benchmark->verbose = GEMV_BENCHMARK_VERBOSE;
-  gemv_benchmark->device = GEMV_BENCHMARK_DEVICE;
-  gemv_benchmark->num_repeats = GEMV_BENCHMARK_NUM_REPEATS;
+  gemv_benchmark->verbose = GEMV_VERBOSE;
+  gemv_benchmark->device = GEMV_DEVICE;
+  gemv_benchmark->num_repeats = GEMV_NUM_REPEATS;
 
   // Set invalid values for required arguments so we can check if they were
   // initialized later.

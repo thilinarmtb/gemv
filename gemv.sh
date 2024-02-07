@@ -15,14 +15,14 @@ function print_help() {
 }
 
 # Set default values.
-: ${GEMV_BENCHMARK_CC:=cc}
-: ${GEMV_BENCHMARK_BUILD_TYPE:=Release}
-: ${GEMV_BENCHMARK_INSTALL_PREFIX:=`pwd`/install}
-: ${GEMV_BENCHMARK_BUILD_DIR:=`pwd`/build}
-: ${GEMV_BENCHMARK_INSTALL:=NO}
-: ${GEMV_BENCHMARK_FORMAT:=NO}
-: ${GEMV_BENCHMARK_FORMAT_CHECK:=NO}
-: ${GEMV_BENCHMARK_TIDY:=NO}
+: ${GEMV_CC:=cc}
+: ${GEMV_BUILD_TYPE:=Release}
+: ${GEMV_INSTALL_PREFIX:=`pwd`/install}
+: ${GEMV_BUILD_DIR:=`pwd`/build}
+: ${GEMV_INSTALL:=NO}
+: ${GEMV_FORMAT:=NO}
+: ${GEMV_FORMAT_CHECK:=NO}
+: ${GEMV_TIDY:=NO}
 
 # Handle command line arguments.
 while [[ $# -gt 0 ]]; do
@@ -32,39 +32,39 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     --cc)
-      GEMV_BENCHMARK_CC="$2"
+      GEMV_CC="$2"
       shift
       shift
       ;;
     --build-type)
-      GEMV_BENCHMARK_BUILD_TYPE="$2"
+      GEMV_BUILD_TYPE="$2"
       shift
       shift
       ;;
     --build-dir)
-      GEMV_BENCHMARK_BUILD_DIR="$2"
+      GEMV_BUILD_DIR="$2"
       shift
       shift
       ;;
     --install-prefix)
-      GEMV_BENCHMARK_INSTALL_PREFIX="$2"
+      GEMV_INSTALL_PREFIX="$2"
       shift
       shift
       ;;
     --install)
-      GEMV_BENCHMARK_INSTALL="YES"
+      GEMV_INSTALL="YES"
       shift
       ;;
     --format)
-      GEMV_BENCHMARK_FORMAT="YES"
+      GEMV_FORMAT="YES"
       shift
       ;;
     --format-check)
-      GEMV_BENCHMARK_FORMAT_CHECK="YES"
+      GEMV_FORMAT_CHECK="YES"
       shift
       ;;
     --tidy)
-      GEMV_BENCHMARK_TIDY="YES"
+      GEMV_TIDY="YES"
       shift
       ;;
     *)
@@ -75,37 +75,37 @@ while [[ $# -gt 0 ]]; do
   esac
 done
   
-mkdir -p ${GEMV_BENCHMARK_BUILD_DIR} 2> /dev/null
+mkdir -p ${GEMV_BUILD_DIR} 2> /dev/null
 
-cmake -DCMAKE_C_COMPILER=${GEMV_BENCHMARK_CC} \
-  -DCMAKE_BUILD_TYPE=${GEMV_BENCHMARK_BUILD_TYPE} \
-  -DCMAKE_INSTALL_PREFIX=${GEMV_BENCHMARK_INSTALL_PREFIX} \
-  -B ${GEMV_BENCHMARK_BUILD_DIR} \
+cmake -DCMAKE_C_COMPILER=${GEMV_CC} \
+  -DCMAKE_BUILD_TYPE=${GEMV_BUILD_TYPE} \
+  -DCMAKE_INSTALL_PREFIX=${GEMV_INSTALL_PREFIX} \
+  -B ${GEMV_BUILD_DIR} \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -S .
   
-if [[ "${GEMV_BENCHMARK_FORMAT}" == "YES" ]]; then
-  cmake --build ${GEMV_BENCHMARK_BUILD_DIR} --target format -j4
+if [[ "${GEMV_FORMAT}" == "YES" ]]; then
+  cmake --build ${GEMV_BUILD_DIR} --target format -j4
 fi
 
-if [[ "${GEMV_BENCHMARK_FORMAT_CHECK}" == "YES" ]]; then
-  cmake --build ${GEMV_BENCHMARK_BUILD_DIR} --target format-check -j4
+if [[ "${GEMV_FORMAT_CHECK}" == "YES" ]]; then
+  cmake --build ${GEMV_BUILD_DIR} --target format-check -j4
   if [[ $? -ne 0 ]]; then
     echo "Error: clang-format check failed."
     exit 1
   fi
 fi
 
-if [[ "${GEMV_BENCHMARK_TIDY}" == "YES" ]]; then
-  cmake --build ${GEMV_BENCHMARK_BUILD_DIR} --target tidy -j4
+if [[ "${GEMV_TIDY}" == "YES" ]]; then
+  cmake --build ${GEMV_BUILD_DIR} --target tidy -j4
   if [[ $? -ne 0 ]]; then
     echo "Error: clang-tidy failed."
     exit 1
   fi
 fi
 
-if [[ "${GEMV_BENCHMARK_INSTALL}" == "YES" ]]; then
-  cmake --build ${GEMV_BENCHMARK_BUILD_DIR} --target install -j4
+if [[ "${GEMV_INSTALL}" == "YES" ]]; then
+  cmake --build ${GEMV_BUILD_DIR} --target install -j4
   if [[ $? -ne 0 ]]; then
     echo "Error: Installing failed."
     exit 1
