@@ -63,12 +63,12 @@ if (HIPCONFIG_EXECUTABLE AND NOT HIP_PLATFORM)
 endif()
 
 if (HIP_PLATFORM)
-  if(${HIP_PLATFORM} STREQUAL "hcc" OR ${HIP_PLATFORM} STREQUAL "amd")
-      set(HIP_LIBRARIES
-        "${HIP_ROOT_DIR}/lib/libamdhip64.so;${HIP_ROOT_DIR}/lib/libhiprtc.so")
-      set(HIP_RUNTIME_DEFINE "__HIP_PLATFORM_HCC__")
-      set(HIP_INCLUDE_DIRS "${HIP_ROOT_DIR}/include")
-  elseif(${HIP_PLATFORM} STREQUAL "nvidia")
+  if (${HIP_PLATFORM} STREQUAL "hcc" OR ${HIP_PLATFORM} STREQUAL "amd")
+    set(HIP_LIBRARIES
+      "${HIP_ROOT_DIR}/lib/libamdhip64.so;${HIP_ROOT_DIR}/lib/libhiprtc.so")
+    set(HIP_RUNTIME_DEFINE "__HIP_PLATFORM_AMD__")
+    set(HIP_INCLUDE_DIRS "${HIP_ROOT_DIR}/include")
+  elseif (${HIP_PLATFORM} STREQUAL "nvidia")
     find_package(CUDA REQUIRED)
     find_package(CUDAToolkit REQUIRED)
     set(HIP_LIBRARIES "CUDA::cudart;CUDA::nvrtc")
@@ -91,6 +91,15 @@ find_package_handle_standard_args(
     HIPCONFIG_EXECUTABLE
     HIP_PLATFORM)
 
+if (NOT DEFINED ROCM_PATH)
+  if (NOT DEFINED ENV{ROCM_PATH})
+    set(ROCM_PATH "/opt/rocm" CACHE PATH "ROCm path")
+  else()
+    set(ROCM_PATH $ENV{ROCM_PATH} CACHE PATH "ROCm path")
+  endif()
+endif()
+set(CMAKE_MODULE_PATH "${ROCM_PATH}/lib/cmake" ${CMAKE_MODULE_PATH})
+
 if (HIP_FOUND AND NOT TARGET gemv::HIP)
   add_library(gemv::HIP INTERFACE IMPORTED)
   set_target_properties(gemv::HIP PROPERTIES
@@ -99,3 +108,6 @@ if (HIP_FOUND AND NOT TARGET gemv::HIP)
     INTERFACE_LINK_LIBRARIES "${HIP_LIBRARIES}"
   )
 endif()
+
+find_package(rocblas)
+#TODO: Import rocblas as gemv::rocblas.

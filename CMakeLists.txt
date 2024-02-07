@@ -24,19 +24,13 @@ configure_file(${CMAKE_SOURCE_DIR}/include/gemv-benchmark-defs.h.in
   ${CMAKE_SOURCE_DIR}/include/gemv-benchmark-defs.h @ONLY)
 
 set(GEMV_SOURCES src/gemv-benchmark-api.c src/gemv-benchmark-impl.c
-  src/gemv-benchmark-hip.c src/gemv-benchmark-dummy.c src/gemv-benchmark-log.c)
+  src/gemv-benchmark-dummy.c src/gemv-benchmark-log.c)
 
 find_package(HIP)
-if (NOT DEFINED ROCM_PATH)
-  if (NOT DEFINED ENV{ROCM_PATH})
-    set(ROCM_PATH "/opt/rocm" CACHE PATH "ROCm path")
-  else()
-    set(ROCM_PATH $ENV{ROCM_PATH} CACHE PATH "ROCm path")
-  endif()
+
+if (HIP_FOUND)
+  set(GEMV_SOURCES "${GEMV_SOURCES} src/gemv-benchmark-hip.c")
 endif()
-set(CMAKE_MODULE_PATH "${ROCM_PATH}/lib/cmake" ${CMAKE_MODULE_PATH})
-find_package(hipblas REQUIRED)
-find_package(rocblas REQUIRED)
 
 add_library(gemv SHARED ${GEMV_SOURCES})
 set_target_properties(gemv PROPERTIES
