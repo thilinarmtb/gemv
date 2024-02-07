@@ -111,4 +111,3 @@ if (HIP_FOUND AND NOT TARGET gemv::HIP)
   find_package(rocblas)
   #TODO: Import rocblas as gemv::rocblas.
 endif()
-

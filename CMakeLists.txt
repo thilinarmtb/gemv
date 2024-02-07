@@ -4,7 +4,7 @@ project(gemv VERSION 0.0.1 DESCRIPTION "Platform independent gemv on GPUs"
 
 # Build Options:
 option(ENABLE_CUDA "Build CUDA backend" OFF)
-option(ENABLE_HIP "Build HIP backend" OFF)
+option(ENABLE_CUDA "Build CUDA backend" OFF)
 
 # Build defaults:
 set(GEMV_VERBOSE 1)
@@ -27,9 +27,13 @@ set(GEMV_SOURCES src/gemv-benchmark-api.c src/gemv-benchmark-impl.c
   src/gemv-benchmark-dummy.c src/gemv-benchmark-log.c)
 
 find_package(HIP)
+if (TARGET gemv::HIP)
+  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-benchmark-hip.c)
+endif()
 
-if (HIP_FOUND)
-  set(GEMV_SOURCES "${GEMV_SOURCES} src/gemv-benchmark-hip.c")
+find_package(CUDA)
+if (TARGET gemv::CUDA)
+  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-benchmark-cuda.c)
 endif()
 
 add_library(gemv SHARED ${GEMV_SOURCES})
@@ -42,8 +46,13 @@ target_compile_options(gemv PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Wno-unused-function
   -Wno-unused-parameter -Wno-stringop-overflow>)
 
-if (HIP_FOUND)
+if (TARGET gemv::HIP)
   target_link_libraries(gemv PRIVATE gemv::HIP)
+  target_link_libraries(gemv PRIVATE gemv::rocblas)
+endif()
+
+if (TARGET gemv::CUDA)
+  target_link_libraries(gemv PRIVATE gemv::CUDA)
 endif()
 
 macro(gemv_add_binary file_name)

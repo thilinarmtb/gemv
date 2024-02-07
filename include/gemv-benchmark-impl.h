@@ -4,6 +4,8 @@
 #include "gemv-benchmark-defs.h"
 #include "gemv-benchmark.h"
 
+#include <assert.h>
+
 // Dynamic memory allocation function.
 #define gemv_benchmark_calloc(T, n) ((T *)calloc(n, sizeof(T)))
 
