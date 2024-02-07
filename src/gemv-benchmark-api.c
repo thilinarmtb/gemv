@@ -14,7 +14,7 @@ static void print_help(const char *name, int status) {
   fprintf(fp, "  --verbose=<verbose level>, Verbose level (0, 1, 2, ...).\n");
   fprintf(fp, "  --device=<device id>, Device ID (0, 1, 2, ...).\n");
   fprintf(fp, "  --num-repeats=<iters>, Number of repeats (1, 2, 3, ...)\n");
-  fprintf(fp, "  --backend=<backend>, Backend (CUDA, OpenCL, nomp, etc.).\n");
+  fprintf(fp, "  --backend=<backend>, Backend (CUDA, HIP, OpenCL, etc.).\n");
   fprintf(fp, "  --size, Number of elements (1, 2, 3, ...).\n");
   fprintf(fp, "  --help, Prints this help message and exit.\n");
   fflush(fp);

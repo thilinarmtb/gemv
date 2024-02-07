@@ -107,7 +107,8 @@ if (HIP_FOUND AND NOT TARGET gemv::HIP)
     INTERFACE_INCLUDE_DIRECTORIES "${HIP_INCLUDE_DIRS}"
     INTERFACE_LINK_LIBRARIES "${HIP_LIBRARIES}"
   )
+
+  find_package(rocblas)
+  #TODO: Import rocblas as gemv::rocblas.
 endif()
 
-find_package(rocblas)
-#TODO: Import rocblas as gemv::rocblas.
