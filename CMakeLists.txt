@@ -69,7 +69,8 @@ if (CLANG_FORMAT)
     COMMAND ${CLANG_FORMAT} -i ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
     COMMENT "Running clang-format ...")
   add_custom_target(format-check
-    COMMAND ${CLANG_FORMAT} --dry-run -Werror -i ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
+    COMMAND ${CLANG_FORMAT} --dry-run -Werror -i
+    ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
     COMMENT "Running clang-format check ...")
 endif()
 
