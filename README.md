@@ -1,6 +1,7 @@
 # GEMV
 
-`GEMV` is a library for performing platform indepent gemv on the GPUs.
+`GEMV` is a library for performing platform independent dense matrix-vector
+products on the GPUs.
 
 ## Build Instructions
 
