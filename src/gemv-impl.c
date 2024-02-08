@@ -1,4 +1,4 @@
-#include "gemv-benchmark-impl.h"
+#include "gemv-impl.h"
 
 #include <assert.h>
 #include <math.h>
@@ -6,16 +6,17 @@
 #include <string.h>
 #include <time.h>
 
-void gemv_benchmark_free_(void **p) { free(*p), *p = NULL; }
+void gemv_free_(void **p) { free(*p), *p = NULL; }
 
-static struct gemv_benchmark_backend_t *backend_list = NULL;
+static struct gemv_backend_t *backend_list = NULL;
 static int backend_count = 0;
 static int backend_max_count = 0;
 
-void gemv_benchmark_register_backend(
-    const char *name,
-    void (*init)(int device, int n, const float *A, const float *x),
-    void (*benchmark)(int num_repeats, float *y), void (*finalize)(void)) {
+void gemv_register_backend(const char *name,
+                           void (*init)(int device, int n, const float *A,
+                                        const float *x),
+                           void (*benchmark)(int num_repeats, float *y),
+                           void (*finalize)(void)) {
   if (backend_count == backend_max_count) {
     backend_max_count += backend_max_count / 2 + 1;
     backend_list =
@@ -29,7 +30,7 @@ void gemv_benchmark_register_backend(
   backend_count++;
 }
 
-void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
+void gemv_run_backend(const struct gemv_t *benchmark) {
   int backend = -1;
   for (int i = 0; i < backend_count; i++) {
     if (strcmp(backend_list[i].name, benchmark->backend) == 0) {
@@ -38,17 +39,17 @@ void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
     }
   }
   assert(backend >= 0);
-  gemv_benchmark_log(benchmark->verbose, "run_backend: %s", benchmark->backend);
+  gemv_log(benchmark->verbose, "run_backend: %s", benchmark->backend);
 
-  float *A = gemv_benchmark_calloc(float, benchmark->size * benchmark->size);
+  float *A = gemv_calloc(float, benchmark->size * benchmark->size);
   for (int i = 0; i < benchmark->size * benchmark->size; i++)
     A[i] = (float)rand() / RAND_MAX;
 
-  float *x = gemv_benchmark_calloc(float, benchmark->size);
+  float *x = gemv_calloc(float, benchmark->size);
   for (int i = 0; i < benchmark->size; i++)
     x[i] = (float)rand() / RAND_MAX;
 
-  float *y = gemv_benchmark_calloc(float, benchmark->size);
+  float *y = gemv_calloc(float, benchmark->size);
 
   // Initialize the backend:
   backend_list[backend].init(benchmark->device, benchmark->size, A, x);
@@ -61,7 +62,7 @@ void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
       (double)(end - start) / (CLOCKS_PER_SEC * benchmark->num_repeats);
 
   // Check correctness:
-  float *y_ref = gemv_benchmark_calloc(float, benchmark->size);
+  float *y_ref = gemv_calloc(float, benchmark->size);
   for (int i = 0; i < benchmark->size; i++) {
     float sum = 0.0f;
     for (int j = 0; j < benchmark->size; j++)
@@ -70,26 +71,26 @@ void gemv_benchmark_run_backend(const struct gemv_benchmark_t *benchmark) {
   }
   for (int i = 0; i < benchmark->size; i++) {
     if (fabs(y[i] - y_ref[i]) / y_ref[i] > 1e-5)
-      gemv_benchmark_error("run_backend: %s: y[%d] = %f != %f",
-                           benchmark->backend, i, y[i], y_ref[i]);
+      gemv_error("run_backend: %s: y[%d] = %f != %f", benchmark->backend, i,
+                 y[i], y_ref[i]);
   }
-  gemv_benchmark_free(&y_ref);
+  gemv_free(&y_ref);
 
-  gemv_benchmark_log(benchmark->verbose, "run_backend: elapsed: %f", elapsed);
+  gemv_log(benchmark->verbose, "run_backend: elapsed: %f", elapsed);
 
   backend_list[backend].finalize();
 
-  gemv_benchmark_free(&A);
-  gemv_benchmark_free(&x);
-  gemv_benchmark_free(&y);
+  gemv_free(&A);
+  gemv_free(&x);
+  gemv_free(&y);
 }
 
-void gemv_benchmark_unregister_backends(void) {
+void gemv_unregister_backends(void) {
   for (int i = 0; i < backend_count; i++) {
     if (backend_list[i].finalize)
       backend_list[i].finalize();
   }
   backend_count = 0;
   backend_max_count = 0;
-  gemv_benchmark_free(&backend_list);
+  gemv_free(&backend_list);
 }

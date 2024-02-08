@@ -1,4 +1,4 @@
-#include "gemv-benchmark-impl.h"
+#include "gemv-impl.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -6,9 +6,9 @@
 
 static int log_level = 0;
 
-void gemv_benchmark_log_init(int level) { log_level = level; }
+void gemv_log_init(int level) { log_level = level; }
 
-void gemv_benchmark_log(int level, const char *fmt, ...) {
+void gemv_log(int level, const char *fmt, ...) {
   if (level >= log_level) {
     va_list args;
     va_start(args, fmt);
@@ -21,7 +21,7 @@ void gemv_benchmark_log(int level, const char *fmt, ...) {
   }
 }
 
-void gemv_benchmark_error(const char *fmt, ...) {
+void gemv_error(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   char buf[BUFSIZ];

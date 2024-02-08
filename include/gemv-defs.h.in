@@ -1,8 +1,8 @@
-#if !defined(__GEMV_BENCHMARK_DEFS_H__)
-#define __GEMV_BENCHMARK_DEFS_H__
+#if !defined(__GEMV_DEFS_H__)
+#define __GEMV_DEFS_H__
 
 #define GEMV_VERBOSE @GEMV_VERBOSE@
 #define GEMV_DEVICE @GEMV_DEVICE@
 #define GEMV_NUM_REPEATS @GEMV_NUM_REPEATS@
 
-#endif // GEMV_BENCHMARK_DEFS_H
+#endif // GEMV_DEFS_H

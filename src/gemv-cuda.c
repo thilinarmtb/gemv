@@ -1,4 +1,4 @@
-#include "gemv-benchmark-impl.h"
+#include "gemv-impl.h"
 
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
@@ -43,6 +43,6 @@ static void finalize(void) {
   cublasDestroy(handle), handle = NULL;
 }
 
-void gemv_benchmark_register_cuda(void) {
-  gemv_benchmark_register_backend("cuda", init, benchmark, finalize);
+void gemv_register_cuda(void) {
+  gemv_register_backend("cuda", init, benchmark, finalize);
 }

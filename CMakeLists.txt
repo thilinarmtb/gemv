@@ -20,27 +20,26 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-configure_file(${CMAKE_SOURCE_DIR}/include/gemv-benchmark-defs.h.in
-  ${CMAKE_SOURCE_DIR}/include/gemv-benchmark-defs.h @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/include/gemv-defs.h.in
+  ${CMAKE_SOURCE_DIR}/include/gemv-defs.h @ONLY)
 
-set(GEMV_SOURCES src/gemv-benchmark-api.c src/gemv-benchmark-impl.c
-  src/gemv-benchmark-dummy.c src/gemv-benchmark-log.c)
+set(GEMV_SOURCES src/gemv-api.c src/gemv-impl.c src/gemv-dummy.c src/gemv-log.c)
 
 find_package(HIP)
 if (TARGET gemv::HIP)
-  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-benchmark-hip.c)
+  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-hip.c)
 endif()
 
 find_package(CUDA)
 if (TARGET gemv::CUDA)
-  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-benchmark-cuda.c)
+  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-cuda.c)
 endif()
 
 add_library(gemv SHARED ${GEMV_SOURCES})
 set_target_properties(gemv PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION 1
-  PUBLIC_HEADER include/gemv-benchmark.h)
+  PUBLIC_HEADER include/gemv.h)
 target_include_directories(gemv PRIVATE include)
 target_compile_options(gemv PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Wno-unused-function
@@ -57,6 +56,7 @@ endif()
 
 macro(gemv_add_binary file_name)
   get_filename_component(target ${file_name} NAME_WE)
+  set(target ${target}_name)
   add_executable(${target} ${file_name})
   set_target_properties(${target} PROPERTIES VERSION ${PROJECT_VERSION})
   target_compile_options(${target} PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /MX>
@@ -67,7 +67,7 @@ macro(gemv_add_binary file_name)
   install(TARGETS ${target} DESTINATION bin)
 endmacro()
 
-gemv_add_binary(bin/gemv-benchmark.c)
+gemv_add_binary(bin/gemv.c)
 
 install(TARGETS gemv LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
 
@@ -79,16 +79,18 @@ if (CLANG_FORMAT)
     COMMENT "Running clang-format ...")
   add_custom_target(format-check
     COMMAND ${CLANG_FORMAT} --dry-run -Werror -i
-    ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
+      ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
     COMMENT "Running clang-format check ...")
 endif()
 
 # Configure .clang-tidy.in to generate .clang-tidy.
-configure_file(${CMAKE_SOURCE_DIR}/.clang-tidy.in ${CMAKE_SOURCE_DIR}/.clang-tidy @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/.clang-tidy.in
+  ${CMAKE_SOURCE_DIR}/.clang-tidy @ONLY)
 # Add clang-tidy as a custom target if available.
 find_program(CLANG_TIDY NAMES clang-tidy)
 if (CLANG_TIDY)
   add_custom_target(tidy
-    COMMAND ${CLANG_TIDY} -p ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
+    COMMAND ${CLANG_TIDY} -p ${CMAKE_BINARY_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
     COMMENT "Running clang-tidy ...")
 endif()

@@ -1,4 +1,4 @@
-#include "gemv-benchmark-impl.h"
+#include "gemv-impl.h"
 
 #include <hip/hip_runtime.h>
 #include <hipblas/hipblas.h>
@@ -43,6 +43,6 @@ static void finalize(void) {
   hipblasDestroy(handle), handle = NULL;
 }
 
-void gemv_benchmark_register_hip(void) {
-  gemv_benchmark_register_backend("hip", init, benchmark, finalize);
+void gemv_register_hip(void) {
+  gemv_register_backend("hip", init, benchmark, finalize);
 }
