@@ -29,7 +29,7 @@ void gemv_register_backend(const char *name,
   backend_count++;
 }
 
-void gemv_run_backend(const struct gemv_t *gemv) {
+void gemv_check_backend(const struct gemv_t *gemv) {
   int backend = -1;
   for (unsigned i = 0; i < backend_count; i++) {
     if (strcmp(backend_list[i].name, gemv->backend) == 0) {

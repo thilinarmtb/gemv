@@ -93,7 +93,7 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   return gemv;
 }
 
-void gemv_run(const struct gemv_t *gemv) { gemv_run_backend(gemv); }
+void gemv_run(const struct gemv_t *gemv) { gemv_check_backend(gemv); }
 
 void gemv_finalize(struct gemv_t **gemv) {
   gemv_unregister_backends();

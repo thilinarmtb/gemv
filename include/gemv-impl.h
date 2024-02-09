@@ -38,7 +38,7 @@ GEMV_INTERN void gemv_register_backend(
     const char *name, void (*init)(int device, int n, const float *A),
     void (*gemv)(float *y, const float *x), void (*finalize)(void));
 
-GEMV_INTERN void gemv_run_backend(const struct gemv_t *gemv);
+GEMV_INTERN void gemv_check_backend(const struct gemv_t *gemv);
 
 GEMV_INTERN void gemv_unregister_backends(void);
 
