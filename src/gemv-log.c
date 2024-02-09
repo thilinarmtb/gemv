@@ -1,8 +1,8 @@
-#include "gemv-impl.h"
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "gemv-impl.h"
 
 static int log_level = 0;
 

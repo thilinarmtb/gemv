@@ -31,24 +31,21 @@ struct gemv_t {
 
 struct gemv_backend_t {
   char name[32];
-  void (*init)(int device, int n, const float *A, const float *x);
-  void (*benchmark)(int num_repeats, float *y);
+  void (*init)(int device, int n, const float *A);
+  void (*gemv)(float *y, const float *x);
   void (*finalize)(void);
 };
 
 GEMV_INTERN void gemv_register_backend(
-    const char *name,
-    void (*init)(int device, int n, const float *A, const float *x),
-    void (*benchmark)(int num_repeats, float *y), void (*finalize)(void));
+    const char *name, void (*init)(int device, int n, const float *A),
+    void (*gemv)(float *y, const float *x), void (*finalize)(void));
 
-GEMV_INTERN void gemv_run_backend(const struct gemv_t *benchmark);
+GEMV_INTERN void gemv_run_backend(const struct gemv_t *gemv);
 
 GEMV_INTERN void gemv_unregister_backends(void);
 
 #define GEMV_BACKEND(name) GEMV_INTERN void gemv_register_##name(void);
-
 #include "gemv-backend-list.h"
-
 #undef GEMV_BACKEND
 
 #endif // GEMV_IMPL_H
