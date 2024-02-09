@@ -24,8 +24,6 @@ GEMV_INTERN void gemv_error(const char *fmt, ...);
 struct gemv_t {
   int verbose;
   int device;
-  int size;
-  int num_repeats;
   char backend[32];
 };
 

@@ -6,10 +6,9 @@ project(gemv VERSION 0.0.1 DESCRIPTION "Platform independent gemv on GPUs"
 option(ENABLE_CUDA "Build CUDA backend" ON)
 option(ENABLE_HIP "Build HIP backend" ON)
 
-# Build defaults:
+# Build defaults (which can be overridden at runtime.
 set(GEMV_VERBOSE 1)
 set(GEMV_DEVICE 0)
-set(GEMV_NUM_REPEATS 100)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)

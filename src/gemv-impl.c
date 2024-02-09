@@ -9,8 +9,8 @@
 void gemv_free_(void **p) { free(*p), *p = NULL; }
 
 static struct gemv_backend_t *backend_list = NULL;
-static int backend_count = 0;
-static int backend_max_count = 0;
+static unsigned backend_count = 0;
+static unsigned backend_max_count = 0;
 
 void gemv_register_backend(const char *name,
                            void (*init)(int device, int n, const float *A),
@@ -31,7 +31,7 @@ void gemv_register_backend(const char *name,
 
 void gemv_run_backend(const struct gemv_t *gemv) {
   int backend = -1;
-  for (int i = 0; i < backend_count; i++) {
+  for (unsigned i = 0; i < backend_count; i++) {
     if (strcmp(backend_list[i].name, gemv->backend) == 0) {
       backend = i;
       break;
@@ -40,41 +40,39 @@ void gemv_run_backend(const struct gemv_t *gemv) {
   assert(backend >= 0);
   gemv_log(gemv->verbose, "run_backend: %s", gemv->backend);
 
-  float *A = gemv_calloc(float, gemv->size * gemv->size);
-  for (int i = 0; i < gemv->size * gemv->size; i++)
+  const size_t size = 8192;
+  float *A = gemv_calloc(float, size *size);
+  for (unsigned i = 0; i < size * size; i++)
     A[i] = (float)rand() / RAND_MAX;
 
-  float *x = gemv_calloc(float, gemv->size);
-  for (int i = 0; i < gemv->size; i++)
+  float *x = gemv_calloc(float, size);
+  for (unsigned i = 0; i < size; i++)
     x[i] = (float)rand() / RAND_MAX;
 
-  float *y = gemv_calloc(float, gemv->size);
+  float *y = gemv_calloc(float, size);
 
   // Initialize the backend:
-  backend_list[backend].init(gemv->device, gemv->size, A);
+  backend_list[backend].init(gemv->device, size, A);
 
   // Run the gemv:
-  clock_t start = clock();
   backend_list[backend].gemv(y, x);
-  clock_t end = clock();
-  double elapsed = (double)(end - start) / (CLOCKS_PER_SEC * gemv->num_repeats);
 
   // Check correctness:
-  float *y_ref = gemv_calloc(float, gemv->size);
-  for (int i = 0; i < gemv->size; i++) {
+  float *y_ref = gemv_calloc(float, size);
+  for (unsigned i = 0; i < size; i++) {
     float sum = 0.0f;
-    for (int j = 0; j < gemv->size; j++)
-      sum += A[i * gemv->size + j] * x[j];
+    for (unsigned j = 0; j < size; j++)
+      sum += A[i * size + j] * x[j];
     y_ref[i] = sum;
   }
-  for (int i = 0; i < gemv->size; i++) {
+  for (unsigned i = 0; i < size; i++) {
     if (fabs(y[i] - y_ref[i]) / y_ref[i] > 1e-5)
       gemv_error("run_backend: %s: y[%d] = %f != %f", gemv->backend, i, y[i],
                  y_ref[i]);
   }
   gemv_free(&y_ref);
 
-  gemv_log(gemv->verbose, "run_backend: elapsed: %f", elapsed);
+  gemv_log(gemv->verbose, "run_backend: pass.");
 
   backend_list[backend].finalize();
 
@@ -82,7 +80,7 @@ void gemv_run_backend(const struct gemv_t *gemv) {
 }
 
 void gemv_unregister_backends(void) {
-  for (int i = 0; i < backend_count; i++) {
+  for (unsigned i = 0; i < backend_count; i++) {
     if (backend_list[i].finalize)
       backend_list[i].finalize();
   }
