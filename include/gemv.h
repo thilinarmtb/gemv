@@ -15,12 +15,10 @@
 #define GEMV_INTERN extern GEMV_VISIBILITY(hidden)
 #endif
 
-struct gemv_bencmark_t;
-
 GEMV_EXTERN struct gemv_t *gemv_init(int *argc, char ***argv);
 
-GEMV_EXTERN void gemv_run(const struct gemv_t *benchmark);
+GEMV_EXTERN void gemv_run(const struct gemv_t *gemv);
 
-GEMV_EXTERN void gemv_finalize(struct gemv_t **benchmark);
+GEMV_EXTERN void gemv_finalize(struct gemv_t **gemv);
 
 #endif // GEMV
