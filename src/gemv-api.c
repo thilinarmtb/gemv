@@ -1,5 +1,3 @@
-#include "gemv-impl.h"
-
 #include <ctype.h>
 #include <getopt.h>
 #include <stdio.h>
@@ -7,15 +5,15 @@
 #include <string.h>
 #include <time.h>
 
+#include "gemv-impl.h"
+
 static void print_help(const char *name, int status) {
   FILE *fp = (status == EXIT_SUCCESS) ? stdout : stderr;
   fprintf(fp, "Usage: %s [OPTIONS]\n", name);
   fprintf(fp, "Options:\n");
   fprintf(fp, "  --verbose=<verbose level>, Verbose level (0, 1, 2, ...).\n");
   fprintf(fp, "  --device=<device id>, Device ID (0, 1, 2, ...).\n");
-  fprintf(fp, "  --num-repeats=<iters>, Number of repeats (1, 2, 3, ...)\n");
   fprintf(fp, "  --backend=<backend>, Backend (CUDA, HIP, OpenCL, etc.).\n");
-  fprintf(fp, "  --size, Number of elements (1, 2, 3, ...).\n");
   fprintf(fp, "  --help, Prints this help message and exit.\n");
   fflush(fp);
   exit(status);
@@ -28,23 +26,15 @@ inline static void set_backend(struct gemv_t *gemv, const char *backend) {
 }
 
 static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
-  static struct option long_options[] = {
-      {"verbose", optional_argument, 0, 10},
-      {"device", optional_argument, 0, 20},
-      {"num-repeats", optional_argument, 0, 30},
-      {"backend", required_argument, 0, 40},
-      {"size", required_argument, 0, 50},
-      {"help", no_argument, 0, 99},
-      {0, 0, 0, 0}};
+  static struct option long_options[] = {{"verbose", optional_argument, 0, 10},
+                                         {"device", optional_argument, 0, 20},
+                                         {"backend", required_argument, 0, 30},
+                                         {"help", no_argument, 0, 99},
+                                         {0, 0, 0, 0}};
 
   // Default values for optional arguments.
   gemv->verbose = GEMV_VERBOSE;
   gemv->device = GEMV_DEVICE;
-  gemv->num_repeats = GEMV_NUM_REPEATS;
-
-  // Set invalid values for required arguments so we can check if they were
-  // initialized later.
-  gemv->size = -1;
   strncpy(gemv->backend, "", 1);
 
   char **argv = *argv_;
@@ -61,13 +51,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
       gemv->device = atoi(optarg);
       break;
     case 30:
-      gemv->num_repeats = atoi(optarg);
-      break;
-    case 40:
       set_backend(gemv, optarg);
-      break;
-    case 50:
-      gemv->size = atoi(optarg);
       break;
     case 99:
       print_help(argv[0], EXIT_SUCCESS);
@@ -78,9 +62,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
     }
   }
 
-  if (gemv->size <= 0)
-    gemv_error("parse_opts: size is not set !");
-  if (gemv->backend[0] == '\0')
+  if (strncmp(gemv->backend, "", 32) == 0)
     gemv_error("parse_opts: backend is not set !");
 
   // Remove parsed arguments from argv. We just need to update the pointers
@@ -92,8 +74,6 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
 
   gemv_log(gemv->verbose, "parse_opts: verbose: %d", gemv->verbose);
   gemv_log(gemv->verbose, "parse_opts: device: %d", gemv->device);
-  gemv_log(gemv->verbose, "parse_opts: num_repeats: %d", gemv->num_repeats);
-  gemv_log(gemv->verbose, "parse_opts: size: %d", gemv->size);
   gemv_log(gemv->verbose, "parse_opts: backend: %s", gemv->backend);
 }
 
