@@ -47,7 +47,6 @@ target_compile_options(gemv PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>
 
 if (TARGET gemv::HIP)
   target_link_libraries(gemv PRIVATE gemv::HIP)
-  target_link_libraries(gemv PRIVATE gemv::rocblas)
 endif()
 
 if (TARGET gemv::CUDA)
