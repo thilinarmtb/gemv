@@ -3,8 +3,8 @@ project(gemv VERSION 0.0.1 DESCRIPTION "Platform independent gemv on GPUs"
   LANGUAGES C)
 
 # Build Options:
-option(ENABLE_CUDA "Build CUDA backend" OFF)
-option(ENABLE_CUDA "Build CUDA backend" OFF)
+option(ENABLE_CUDA "Build CUDA backend" ON)
+option(ENABLE_HIP "Build HIP backend" ON)
 
 # Build defaults:
 set(GEMV_VERBOSE 1)
@@ -25,14 +25,18 @@ configure_file(${CMAKE_SOURCE_DIR}/include/gemv-defs.h.in
 
 set(GEMV_SOURCES src/gemv-api.c src/gemv-impl.c src/gemv-dummy.c src/gemv-log.c)
 
-find_package(HIP)
-if (TARGET gemv::HIP)
-  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-hip.c)
+if (ENABLE_HIP)
+  find_package(HIP)
+  if (TARGET gemv::HIP)
+    set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-hip.c)
+  endif()
 endif()
 
-find_package(CUDA)
-if (TARGET gemv::CUDA)
-  set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-cuda.c)
+if (ENABLE_CUDA)
+  find_package(CUDA)
+  if (TARGET gemv::CUDA)
+    set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-cuda.c)
+  endif()
 endif()
 
 add_library(gemv SHARED ${GEMV_SOURCES})
@@ -45,11 +49,11 @@ target_compile_options(gemv PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Wno-unused-function
   -Wno-unused-parameter -Wno-stringop-overflow>)
 
-if (TARGET gemv::HIP)
+if (ENABLE_HIP AND TARGET gemv::HIP)
   target_link_libraries(gemv PRIVATE gemv::HIP)
 endif()
 
-if (TARGET gemv::CUDA)
+if (ENABLE_CUDA AND TARGET gemv::CUDA)
   target_link_libraries(gemv PRIVATE gemv::CUDA)
 endif()
 
