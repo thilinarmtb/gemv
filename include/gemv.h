@@ -21,9 +21,11 @@ GEMV_EXTERN struct gemv_t *gemv_init(int *argc, char ***argv);
 
 GEMV_EXTERN void gemv_set_verbose(int verbose);
 
-GEMV_EXTERN void gemv_set_device(int device);
+GEMV_EXTERN void gemv_set_device(struct gemv_t *gemv, int device);
 
-GEMV_EXTERN void gemv_set_matrix(float *A, struct gemv_t *gemv);
+GEMV_EXTERN void gemv_set_backend(struct gemv_t *gemv, const char *backend);
+
+GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, float *A);
 
 typedef enum { GEMV_H2D = 0, GEMV_D2H } gemv_direction_t;
 

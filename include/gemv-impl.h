@@ -20,9 +20,7 @@ GEMV_INTERN void gemv_log(int level, const char *fmt, ...);
 GEMV_INTERN void gemv_error(const char *fmt, ...);
 
 struct gemv_t {
-  int verbose;
-  int device;
-  char backend[32];
+  int verbose, device, backend;
 };
 
 struct gemv_backend_t {

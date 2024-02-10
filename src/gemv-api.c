@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "gemv-impl.h"
 
@@ -19,12 +18,6 @@ static void print_help(const char *name, int status) {
   exit(status);
 }
 
-inline static void set_backend(struct gemv_t *gemv, const char *backend) {
-  size_t len = strnlen(backend, 32);
-  for (uint i = 0; i < len; i++)
-    gemv->backend[i] = tolower(backend[i]);
-}
-
 static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   static struct option long_options[] = {{"verbose", optional_argument, 0, 10},
                                          {"device", optional_argument, 0, 20},
@@ -35,7 +28,8 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   // Default values for optional arguments.
   gemv->verbose = GEMV_DEFAULT_VERBOSE;
   gemv->device = GEMV_DEFAULT_DEVICE;
-  strncpy(gemv->backend, GEMV_DEFAULT_BACKEND, 16);
+  char backend[32];
+  strncpy(backend, GEMV_DEFAULT_BACKEND, 16);
 
   if (argc == NULL || *argc == 0 || argv_ == NULL) return;
 
@@ -52,7 +46,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
       gemv->device = atoi(optarg);
       break;
     case 30:
-      set_backend(gemv, optarg);
+      strncpy(backend, optarg, 16);
       break;
     case 99:
       print_help(argv[0], EXIT_SUCCESS);
@@ -76,9 +70,6 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
 #include "gemv-backend-list.h"
 #undef GEMV_BACKEND
 
-  // Initialize the random number generator.
-  srand(time(NULL));
-
   // Initialize the gemv_t struct.
   struct gemv_t *gemv = gemv_calloc(struct gemv_t, 1);
   parse_opts(gemv, argc, (char ***)argv);
@@ -92,9 +83,9 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   return gemv;
 }
 
-void gemv_set_device(int device) {}
+void gemv_set_device(struct gemv_t *gemv, int device) { gemv->device = device; }
 
-void gemv_set_backend(const char *backend) {}
+void gemv_set_matrix(struct gemv_t *gemv, float *A) {}
 
 void gemv_check(const struct gemv_t *gemv) { gemv_check_backend(gemv); }
 

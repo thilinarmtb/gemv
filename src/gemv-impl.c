@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,16 +34,27 @@ void gemv_register_backend(const char *name,
   backend_count++;
 }
 
-void gemv_check_backend(const struct gemv_t *gemv) {
-  int backend = -1;
+void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
+  size_t backend_length = strnlen(backend, 32);
+  char backend_lower[32];
+  for (unsigned i = 0; i < backend_length; i++)
+    backend_lower[i] = tolower(backend[i]);
+
+  gemv->backend = -1;
   for (unsigned i = 0; i < backend_count; i++) {
-    if (strcmp(backend_list[i].name, gemv->backend) == 0) {
-      backend = i;
+    if (strncmp(backend_lower, backend_list[i].name, 32) == 0) {
+      gemv->backend = i;
       break;
     }
   }
-  assert(backend >= 0);
-  gemv_log(gemv->verbose, "run_backend: %s", gemv->backend);
+}
+
+void gemv_check_backend(const struct gemv_t *gemv) {
+  assert(gemv->backend >= 0);
+  gemv_log(gemv->verbose, "check_backend: %s", gemv->backend);
+
+  // Initialize the matrix and RHS.
+  srand(time(NULL));
 
   const size_t size = 8192;
   float *A = gemv_calloc(float, size *size);
@@ -56,10 +68,10 @@ void gemv_check_backend(const struct gemv_t *gemv) {
   float *y = gemv_calloc(float, size);
 
   // Initialize the backend:
-  backend_list[backend].init(gemv->device, size, A);
+  backend_list[gemv->backend].init(gemv->device, size, A);
 
   // Run the gemv:
-  backend_list[backend].gemv(y, x);
+  backend_list[gemv->backend].gemv(y, x);
 
   // Check correctness:
   float *y_ref = gemv_calloc(float, size);
@@ -71,14 +83,13 @@ void gemv_check_backend(const struct gemv_t *gemv) {
   }
   for (unsigned i = 0; i < size; i++) {
     if (fabs(y[i] - y_ref[i]) / y_ref[i] > 1e-5)
-      gemv_error("run_backend: %s: y[%d] = %f != %f", gemv->backend, i, y[i],
-                 y_ref[i]);
+      gemv_error("check_backend: y[%d] = %f != %f", i, y[i], y_ref[i]);
   }
   gemv_free(&y_ref);
 
-  gemv_log(gemv->verbose, "run_backend: pass.");
+  gemv_log(gemv->verbose, "check_backend: pass.");
 
-  backend_list[backend].finalize();
+  backend_list[gemv->backend].finalize();
 
   gemv_free(&A), gemv_free(&x), gemv_free(&y);
 }
