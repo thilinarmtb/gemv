@@ -13,7 +13,7 @@ set(GEMV_DEFAULT_BACKEND "")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -36,8 +36,8 @@ if (ENABLE_CUDA)
   endif()
 endif()
 
-configure_file(${CMAKE_SOURCE_DIR}/include/gemv-defs.h.in
-  ${CMAKE_SOURCE_DIR}/include/gemv-defs.h @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/gemv-defs.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/gemv-defs.h @ONLY)
 
 add_library(gemv SHARED ${GEMV_SOURCES})
 set_target_properties(gemv PROPERTIES
@@ -87,13 +87,13 @@ if (CLANG_FORMAT)
 endif()
 
 # Configure .clang-tidy.in to generate .clang-tidy.
-configure_file(${CMAKE_SOURCE_DIR}/.clang-tidy.in
-  ${CMAKE_SOURCE_DIR}/.clang-tidy @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy @ONLY)
 # Add clang-tidy as a custom target if available.
 find_program(CLANG_TIDY NAMES clang-tidy)
 if (CLANG_TIDY)
   add_custom_target(tidy
-    COMMAND ${CLANG_TIDY} -p ${CMAKE_BINARY_DIR}
+    COMMAND ${CLANG_TIDY} -p ${CMAKE_CURRENT_BINARY_DIR}
       ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
     COMMENT "Running clang-tidy ...")
 endif()
