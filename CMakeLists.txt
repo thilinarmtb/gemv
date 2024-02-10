@@ -7,8 +7,9 @@ option(ENABLE_CUDA "Build CUDA backend" ON)
 option(ENABLE_HIP "Build HIP backend" ON)
 
 # Build defaults (which can be overridden at runtime.
-set(GEMV_VERBOSE 1)
-set(GEMV_DEVICE 0)
+set(GEMV_DEFAULT_VERBOSE 1)
+set(GEMV_DEFAULT_DEVICE 0)
+set(GEMV_DEFAULT_BACKEND "")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -18,9 +19,6 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-configure_file(${CMAKE_SOURCE_DIR}/include/gemv-defs.h.in
-  ${CMAKE_SOURCE_DIR}/include/gemv-defs.h @ONLY)
 
 set(GEMV_SOURCES src/gemv-api.c src/gemv-impl.c src/gemv-dummy.c src/gemv-log.c)
 
@@ -37,6 +35,9 @@ if (ENABLE_CUDA)
     set(GEMV_SOURCES ${GEMV_SOURCES} src/gemv-cuda.c)
   endif()
 endif()
+
+configure_file(${CMAKE_SOURCE_DIR}/include/gemv-defs.h.in
+  ${CMAKE_SOURCE_DIR}/include/gemv-defs.h @ONLY)
 
 add_library(gemv SHARED ${GEMV_SOURCES})
 set_target_properties(gemv PROPERTIES

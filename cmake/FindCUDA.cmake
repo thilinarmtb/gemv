@@ -5,3 +5,7 @@ if (TARGET CUDA::toolkit)
   target_link_libraries(gemv::CUDA INTERFACE CUDA::cudart CUDA::cuda_driver
     CUDA::cublas)
 endif()
+
+if (TARGET gemv::CUDA AND "${GEMV_DEFAULT_BACKEND}" STREQUAL "")
+  set(GEMV_DEFAULT_BACKEND "cuda")
+endif()
