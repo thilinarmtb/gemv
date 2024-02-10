@@ -27,9 +27,9 @@ struct gemv_t {
 
 struct gemv_backend_t {
   char name[32];
-  void (*init)(int device, int n, const float *A);
+  void (*init)(int, int, const float *);
   void (*copy)(void *, const void *, size_t, gemv_direction_t);
-  void (*gemv)(float *y, const float *x);
+  void (*gemv)(float *, const float *);
   void (*finalize)(void);
 };
 

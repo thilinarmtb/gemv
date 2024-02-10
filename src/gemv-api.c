@@ -33,15 +33,16 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
                                          {0, 0, 0, 0}};
 
   // Default values for optional arguments.
-  gemv->verbose = GEMV_VERBOSE;
-  gemv->device = GEMV_DEVICE;
-  strncpy(gemv->backend, "", 1);
+  gemv->verbose = GEMV_DEFAULT_VERBOSE;
+  gemv->device = GEMV_DEFAULT_DEVICE;
+  strncpy(gemv->backend, GEMV_DEFAULT_BACKEND, 16);
+
+  if (argc == NULL || *argc == 0 || argv_ == NULL) return;
 
   char **argv = *argv_;
   for (;;) {
     int c = getopt_long(*argc, argv, "", long_options, NULL);
-    if (c == -1)
-      break;
+    if (c == -1) break;
 
     switch (c) {
     case 10:
@@ -61,9 +62,6 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
       break;
     }
   }
-
-  if (strncmp(gemv->backend, "", 32) == 0)
-    gemv_error("parse_opts: backend is not set !");
 
   // Remove parsed arguments from argv. We just need to update the pointers
   // since command line arguments are not transient and available until the

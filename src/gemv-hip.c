@@ -5,8 +5,7 @@
 
 static inline void check_hip_runtime_(hipError_t err, const char *file,
                                       const unsigned line) {
-  if (err == hipSuccess)
-    return;
+  if (err == hipSuccess) return;
   fprintf(stderr, "HIP runtime error: %s in file: %s line: %u\n",
           hipGetErrorString(err), file, line);
   exit(EXIT_FAILURE);

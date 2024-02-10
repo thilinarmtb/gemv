@@ -85,8 +85,7 @@ void gemv_check_backend(const struct gemv_t *gemv) {
 
 void gemv_unregister_backends(void) {
   for (unsigned i = 0; i < backend_count; i++) {
-    if (backend_list[i].finalize)
-      backend_list[i].finalize();
+    if (backend_list[i].finalize) backend_list[i].finalize();
   }
 
   backend_count = backend_max_count = 0, gemv_free(&backend_list);

@@ -5,8 +5,7 @@
 
 static inline void check_cuda_runtime_(cudaError_t err, const char *file,
                                        const unsigned line) {
-  if (err == cudaSuccess)
-    return;
+  if (err == cudaSuccess) return;
   fprintf(stderr, "CUDA runtime error: %s in file: %s line: %u\n",
           cudaGetErrorString(err), file, line);
   exit(EXIT_FAILURE);
