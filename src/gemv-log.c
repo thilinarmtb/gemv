@@ -6,7 +6,7 @@
 
 static int log_level = 0;
 
-void gemv_log_init(int level) { log_level = level; }
+void gemv_set_verbose(int level) { log_level = level; }
 
 void gemv_log(int level, const char *fmt, ...) {
   if (level >= log_level) {

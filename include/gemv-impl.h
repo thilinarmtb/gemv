@@ -15,8 +15,6 @@
 GEMV_INTERN void gemv_free_(void **p);
 #define gemv_free(p) gemv_free_((void **)p)
 
-GEMV_INTERN void gemv_log_init(int verbose);
-
 GEMV_INTERN void gemv_log(int level, const char *fmt, ...);
 
 GEMV_INTERN void gemv_error(const char *fmt, ...);

@@ -18,7 +18,7 @@ static cublasHandle_t handle = NULL;
 static float *d_A = NULL;
 static int n = 0;
 
-static void init(int device, int n_, const float *A) {
+static void cuda_init(int device, int n_, const float *A) {
   check_cuda_runtime(cudaSetDevice(device));
   n = n_;
 
@@ -29,13 +29,13 @@ static void init(int device, int n_, const float *A) {
   cublasCreate(&handle);
 }
 
-static void gemv(float *d_y, const float *d_x) {
+static void cuda_gemv(float *d_y, const float *d_x) {
   float alpha = 1.0f, beta = 0.0f;
   cublasSgemv(handle, CUBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y, 1);
 }
 
-static void copy(void *dest, const void *src, size_t count,
-                 gemv_direction_t direction) {
+static void cuda_copy(void *dest, const void *src, size_t count,
+                      gemv_direction_t direction) {
   enum cudaMemcpyKind kind = cudaMemcpyDefault;
   switch (direction) {
   case GEMV_D2H:
@@ -49,11 +49,11 @@ static void copy(void *dest, const void *src, size_t count,
   check_cuda_runtime(cudaMemcpy(dest, src, count, kind));
 }
 
-static void finalize(void) {
+static void cuda_finalize(void) {
   check_cuda_runtime(cudaFree(d_A)), d_A = NULL;
   cublasDestroy(handle), handle = NULL;
 }
 
 void gemv_register_cuda(void) {
-  gemv_register_backend("cuda", init, copy, gemv, finalize);
+  gemv_register_backend("cuda", cuda_init, cuda_copy, cuda_gemv, cuda_finalize);
 }

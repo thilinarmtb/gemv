@@ -71,15 +71,9 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   for (int i = optind; i < *argc; i++)
     argv[i - optind] = argv[i];
   *argc -= optind;
-
-  gemv_log(gemv->verbose, "parse_opts: verbose: %d", gemv->verbose);
-  gemv_log(gemv->verbose, "parse_opts: device: %d", gemv->device);
-  gemv_log(gemv->verbose, "parse_opts: backend: %s", gemv->backend);
 }
 
 struct gemv_t *gemv_init(int *argc, char ***argv) {
-  gemv_log_init(1);
-
 #define GEMV_BACKEND(name) gemv_register_##name();
 #include "gemv-backend-list.h"
 #undef GEMV_BACKEND
@@ -90,10 +84,26 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   // Initialize the gemv_t struct.
   struct gemv_t *gemv = gemv_calloc(struct gemv_t, 1);
   parse_opts(gemv, argc, (char ***)argv);
+
+  gemv_set_verbose(gemv->verbose);
+
+  gemv_log(gemv->verbose, "parse_opts: verbose: %d", gemv->verbose);
+  gemv_log(gemv->verbose, "parse_opts: device: %d", gemv->device);
+  gemv_log(gemv->verbose, "parse_opts: backend: %s", gemv->backend);
+
   return gemv;
 }
 
-void gemv_run(const struct gemv_t *gemv) { gemv_check_backend(gemv); }
+void gemv_set_device(int device) {}
+
+void gemv_set_backend(const char *backend) {}
+
+void gemv_check(const struct gemv_t *gemv) { gemv_check_backend(gemv); }
+
+void gemv(float *y, const struct gemv_t *gemv, const float *x);
+
+void gemv_copy(void *dst, const void *src, size_t count,
+               const gemv_direction_t direction) {}
 
 void gemv_finalize(struct gemv_t **gemv) {
   gemv_unregister_backends();

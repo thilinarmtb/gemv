@@ -18,7 +18,7 @@ static hipblasHandle_t handle = NULL;
 static float *d_A = NULL;
 static int n = 0;
 
-static void init(int device, int n_, const float *A) {
+static void hip_init(int device, int n_, const float *A) {
   check_hip_runtime(hipSetDevice(device));
   n = n_;
 
@@ -29,14 +29,14 @@ static void init(int device, int n_, const float *A) {
   hipblasCreate(&handle);
 }
 
-static void gemv(float *d_y, const float *d_x) {
+static void hip_gemv(float *d_y, const float *d_x) {
   float alpha = 1.0f, beta = 0.0f;
   hipblasSgemv(handle, HIPBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y,
                1);
 }
 
-static void copy(void *dest, const void *src, size_t count,
-                 gemv_direction_t direction) {
+static void hip_copy(void *dest, const void *src, size_t count,
+                     gemv_direction_t direction) {
   enum hipMemcpyKind kind = hipMemcpyDefault;
   switch (direction) {
   case GEMV_D2H:
@@ -50,11 +50,11 @@ static void copy(void *dest, const void *src, size_t count,
   check_hip_runtime(hipMemcpy(dest, src, count, kind));
 }
 
-static void finalize(void) {
+static void hip_finalize(void) {
   check_hip_rumtime(hipFree(d_A)), d_A = NULL;
   hipblasDestroy(handle), handle = NULL;
 }
 
 void gemv_register_hip(void) {
-  gemv_register_backend("hip", init, copy, gemv, finalize);
+  gemv_register_backend("hip", hip_init, hip_copy, hip_gemv, hip_finalize);
 }
