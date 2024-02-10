@@ -14,6 +14,9 @@ static unsigned backend_max_count = 0;
 
 void gemv_register_backend(const char *name,
                            void (*init)(int device, int n, const float *A),
+                           void (*copy)(void *dest, const void *src,
+                                        size_t count,
+                                        gemv_direction_t direction),
                            void (*gemv)(float *y, const float *x),
                            void (*finalize)(void)) {
   if (backend_count == backend_max_count) {
@@ -24,6 +27,7 @@ void gemv_register_backend(const char *name,
 
   strncpy(backend_list[backend_count].name, name, 32);
   backend_list[backend_count].init = init;
+  backend_list[backend_count].copy = copy;
   backend_list[backend_count].gemv = gemv;
   backend_list[backend_count].finalize = finalize;
   backend_count++;

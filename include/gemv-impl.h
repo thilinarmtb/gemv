@@ -30,12 +30,15 @@ struct gemv_t {
 struct gemv_backend_t {
   char name[32];
   void (*init)(int device, int n, const float *A);
+  void (*copy)(void *, const void *, size_t, gemv_direction_t);
   void (*gemv)(float *y, const float *x);
   void (*finalize)(void);
 };
 
 GEMV_INTERN void gemv_register_backend(
     const char *name, void (*init)(int device, int n, const float *A),
+    void (*copy)(void *dest, const void *src, size_t count,
+                 gemv_direction_t direction),
     void (*gemv)(float *y, const float *x), void (*finalize)(void));
 
 GEMV_INTERN void gemv_check_backend(const struct gemv_t *gemv);

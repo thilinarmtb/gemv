@@ -35,11 +35,26 @@ static void gemv(float *d_y, const float *d_x) {
                1);
 }
 
+static void copy(void *dest, const void *src, size_t count,
+                 gemv_direction_t direction) {
+  enum hipMemcpyKind kind = hipMemcpyDefault;
+  switch (direction) {
+  case GEMV_D2H:
+    kind = hipMemcpyDeviceToHost;
+    break;
+  case GEMV_H2D:
+    kind = hipMemcpyHostToDevice;
+    break;
+  }
+
+  check_hip_runtime(hipMemcpy(dest, src, count, kind));
+}
+
 static void finalize(void) {
   check_hip_rumtime(hipFree(d_A)), d_A = NULL;
   hipblasDestroy(handle), handle = NULL;
 }
 
 void gemv_register_hip(void) {
-  gemv_register_backend("hip", init, gemv, finalize);
+  gemv_register_backend("hip", init, copy, gemv, finalize);
 }

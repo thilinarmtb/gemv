@@ -34,11 +34,26 @@ static void gemv(float *d_y, const float *d_x) {
   cublasSgemv(handle, CUBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y, 1);
 }
 
+static void copy(void *dest, const void *src, size_t count,
+                 gemv_direction_t direction) {
+  enum cudaMemcpyKind kind = cudaMemcpyDefault;
+  switch (direction) {
+  case GEMV_D2H:
+    kind = cudaMemcpyDeviceToHost;
+    break;
+  case GEMV_H2D:
+    kind = cudaMemcpyHostToDevice;
+    break;
+  }
+
+  check_cuda_runtime(cudaMemcpy(dest, src, count, kind));
+}
+
 static void finalize(void) {
   check_cuda_runtime(cudaFree(d_A)), d_A = NULL;
   cublasDestroy(handle), handle = NULL;
 }
 
 void gemv_register_cuda(void) {
-  gemv_register_backend("cuda", init, gemv, finalize);
+  gemv_register_backend("cuda", init, copy, gemv, finalize);
 }

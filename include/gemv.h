@@ -15,7 +15,11 @@
 #define GEMV_INTERN extern GEMV_VISIBILITY(hidden)
 #endif
 
+typedef enum { GEMV_H2D = 0, GEMV_D2H } gemv_direction_t;
+
 GEMV_EXTERN struct gemv_t *gemv_init(int *argc, char ***argv);
+
+GEMV_EXTERN int gemv_setup(float *A, struct gemv_t *gemv);
 
 GEMV_EXTERN void gemv_run(const struct gemv_t *gemv);
 
