@@ -4,7 +4,7 @@ if (TARGET CUDA::toolkit)
   add_library(gemv::CUDA INTERFACE IMPORTED)
   target_link_libraries(gemv::CUDA INTERFACE CUDA::cudart CUDA::cuda_driver)
   if (TARGET CUDA::cublas)
-    target_link_libraries(gemv::CUDA cuda::cublas)
+    target_link_libraries(gemv::CUDA INTERFACE CUDA::cublas)
   endif()
 endif()
 
