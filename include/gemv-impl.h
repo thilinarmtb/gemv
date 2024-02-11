@@ -15,9 +15,9 @@
 GEMV_INTERN void gemv_free_(void **p);
 #define gemv_free(p) gemv_free_((void **)p)
 
-GEMV_INTERN void gemv_log(int level, const char *fmt, ...);
+GEMV_INTERN void gemv_log(const gemv_verbose_t verbose, const char *fmt, ...);
 
-GEMV_INTERN void gemv_error(const char *fmt, ...);
+GEMV_INTERN void gemv_assert(int cond, const char *fmt, ...);
 
 struct gemv_t {
   int verbose, device, backend;
@@ -38,7 +38,12 @@ GEMV_INTERN void gemv_register_backend(
                  gemv_direction_t direction),
     void (*gemv)(float *y, const float *x), void (*finalize)(void));
 
-GEMV_INTERN void gemv_check_backend(const struct gemv_t *gemv);
+GEMV_INTERN void gemv_backend_init(int backend, int device, size_t size,
+                                   const double *A);
+
+GEMV_INTERN void gemv_backend_run(float *y, const float *x);
+
+GEMV_INTERN void gemv_backend_finalize(void);
 
 GEMV_INTERN void gemv_unregister_backends(void);
 

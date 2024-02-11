@@ -10,8 +10,8 @@
 void gemv_free_(void **p) { free(*p), *p = NULL; }
 
 static struct gemv_backend_t *backend_list = NULL;
-static unsigned backend_count = 0;
-static unsigned backend_max_count = 0;
+static unsigned backend_count = 0, backend_max_count = 0;
+static int backend_active = -1;
 
 void gemv_register_backend(const char *name,
                            void (*init)(int device, int n, const float *A),
@@ -51,17 +51,27 @@ void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
   }
 }
 
-void gemv_check_backend(const struct gemv_t *gemv) {
+void gemv_backend_init(int backend, int device, size_t size, const double *A) {}
+
+void gemv_backend_run(float *y, const float *x) {
+  gemv_assert(backend_active >= 0,
+              "gemv_backend_init: A backend is not initialized.");
+}
+
+void gemv_backend_finalize(void) {}
+
+void gemv_check(const struct gemv_t *gemv) {
   assert(gemv->backend >= 0);
-  gemv_log(gemv->verbose, "check_backend: %s", gemv->backend);
+  assert(gemv->device >= 0);
+  gemv_log(gemv->verbose, "gemv_check: %s", gemv->backend);
 
   // Initialize the matrix and RHS.
   srand(time(NULL));
 
   const size_t size = 8192;
-  float *A = gemv_calloc(float, size *size);
+  double *A = gemv_calloc(double, size *size);
   for (unsigned i = 0; i < size * size; i++)
-    A[i] = (float)rand() / RAND_MAX;
+    A[i] = (double)rand() / RAND_MAX;
 
   float *x = gemv_calloc(float, size);
   for (unsigned i = 0; i < size; i++)
@@ -70,10 +80,10 @@ void gemv_check_backend(const struct gemv_t *gemv) {
   float *y = gemv_calloc(float, size);
 
   // Initialize the backend:
-  backend_list[gemv->backend].init(gemv->device, size, A);
+  gemv_backend_init(gemv->backend, gemv->device, size, A);
 
   // Run the gemv:
-  backend_list[gemv->backend].gemv(y, x);
+  gemv_backend_run(y, x);
 
   // Check correctness:
   float *y_ref = gemv_calloc(float, size);
@@ -85,13 +95,13 @@ void gemv_check_backend(const struct gemv_t *gemv) {
   }
   for (unsigned i = 0; i < size; i++) {
     if (fabs(y[i] - y_ref[i]) / y_ref[i] > 1e-5)
-      gemv_error("check_backend: y[%d] = %f != %f", i, y[i], y_ref[i]);
+      gemv_log(GEMV_ERROR, "gemv_check: y[%d] = %f != %f", i, y[i], y_ref[i]);
   }
   gemv_free(&y_ref);
 
-  gemv_log(gemv->verbose, "check_backend: pass.");
+  gemv_log(gemv->verbose, "gemv_check: pass.");
 
-  backend_list[gemv->backend].finalize();
+  gemv_backend_finalize();
 
   gemv_free(&A), gemv_free(&x), gemv_free(&y);
 }
