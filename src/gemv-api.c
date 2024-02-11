@@ -63,9 +63,6 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
     }
   }
 
-  // Remove parsed arguments from argv. We just need to update the pointers
-  // since command line arguments are not transient and available until the
-  // end of the program.
   for (int i = optind; i < *argc; i++)
     argv[i - optind] = argv[i];
   *argc -= optind;
@@ -103,6 +100,6 @@ void gemv_copy(void *dst, const void *src, size_t count,
                const gemv_direction_t direction) {}
 
 void gemv_finalize(struct gemv_t **gemv) {
-  gemv_unregister_backends();
+  gemv_deregister_backends();
   gemv_free(gemv);
 }

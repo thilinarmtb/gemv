@@ -106,7 +106,7 @@ void gemv_check(const struct gemv_t *gemv) {
   gemv_free(&A), gemv_free(&x), gemv_free(&y);
 }
 
-void gemv_unregister_backends(void) {
+void gemv_deregister_backends(void) {
   for (unsigned i = 0; i < backend_count; i++) {
     if (backend_list[i].finalize) backend_list[i].finalize();
   }

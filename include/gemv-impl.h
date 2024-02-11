@@ -45,7 +45,7 @@ GEMV_INTERN void gemv_backend_run(float *y, const float *x);
 
 GEMV_INTERN void gemv_backend_finalize(void);
 
-GEMV_INTERN void gemv_unregister_backends(void);
+GEMV_INTERN void gemv_deregister_backends(void);
 
 #define GEMV_BACKEND(name) GEMV_INTERN void gemv_register_##name(void);
 #include "gemv-backend-list.h"
