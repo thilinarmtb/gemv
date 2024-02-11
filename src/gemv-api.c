@@ -28,8 +28,8 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   // Default values for optional arguments.
   gemv->verbose = GEMV_DEFAULT_VERBOSE;
   gemv->device = GEMV_DEFAULT_DEVICE;
-  char backend[32];
-  strncpy(backend, GEMV_DEFAULT_BACKEND, 16);
+  char backend[GEMV_MAX_BACKEND_LENGTH + 1];
+  strncpy(backend, GEMV_DEFAULT_BACKEND, GEMV_MAX_BACKEND_LENGTH);
 
   if (argc == NULL || *argc == 0 || argv_ == NULL) return;
 
@@ -46,7 +46,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
       gemv->device = atoi(optarg);
       break;
     case 30:
-      strncpy(backend, optarg, 16);
+      strncpy(backend, optarg, GEMV_MAX_BACKEND_LENGTH);
       break;
     case 99:
       print_help(argv[0], EXIT_SUCCESS);

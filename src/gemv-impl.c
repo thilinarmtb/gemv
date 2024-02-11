@@ -26,7 +26,7 @@ void gemv_register_backend(const char *name,
         realloc(backend_list, backend_max_count * sizeof(*backend_list));
   }
 
-  strncpy(backend_list[backend_count].name, name, 32);
+  strncpy(backend_list[backend_count].name, name, GEMV_MAX_BACKEND_LENGTH);
   backend_list[backend_count].init = init;
   backend_list[backend_count].copy = copy;
   backend_list[backend_count].gemv = gemv;
@@ -35,14 +35,16 @@ void gemv_register_backend(const char *name,
 }
 
 void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
-  size_t backend_length = strnlen(backend, 32);
-  char backend_lower[32];
+  size_t backend_length = strnlen(backend, GEMV_MAX_BACKEND_LENGTH);
+  char backend_lower[GEMV_MAX_BACKEND_LENGTH + 1];
   for (unsigned i = 0; i < backend_length; i++)
     backend_lower[i] = tolower(backend[i]);
+  backend_lower[backend_length] = '\0';
 
   gemv->backend = -1;
   for (unsigned i = 0; i < backend_count; i++) {
-    if (strncmp(backend_lower, backend_list[i].name, 32) == 0) {
+    if (strncmp(backend_lower, backend_list[i].name, GEMV_MAX_BACKEND_LENGTH) ==
+        0) {
       gemv->backend = i;
       break;
     }
