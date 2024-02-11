@@ -17,6 +17,7 @@
 
 #include <stddef.h>
 
+struct gemv_t;
 GEMV_EXTERN struct gemv_t *gemv_init(int *argc, char ***argv);
 
 GEMV_EXTERN void gemv_set_verbose(int verbose);
