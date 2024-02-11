@@ -19,11 +19,13 @@ static void print_help(const char *name, int status) {
 }
 
 static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
-  static struct option long_options[] = {{"verbose", optional_argument, 0, 10},
-                                         {"device", optional_argument, 0, 20},
-                                         {"backend", required_argument, 0, 30},
-                                         {"help", no_argument, 0, 99},
-                                         {0, 0, 0, 0}};
+  static struct option long_options[] = {
+      {"verbose", optional_argument, 0, 10},
+      {"device", optional_argument, 0, 20},
+      {"backend", required_argument, 0, 30},
+      {"precision", required_argument, 0, 40},
+      {"help", no_argument, 0, 99},
+      {0, 0, 0, 0}};
 
   // Default values for optional arguments.
   gemv->verbose = GEMV_DEFAULT_VERBOSE;
@@ -33,6 +35,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
 
   if (argc == NULL || *argc == 0 || argv_ == NULL) return;
 
+  // TODO: Check if the input is valid.
   char **argv = *argv_;
   for (;;) {
     int c = getopt_long(*argc, argv, "", long_options, NULL);
@@ -47,6 +50,9 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
       break;
     case 30:
       strncpy(backend, optarg, GEMV_MAX_BACKEND_LENGTH);
+      break;
+    case 40:
+      gemv->precision = atoi(optarg);
       break;
     case 99:
       print_help(argv[0], EXIT_SUCCESS);
