@@ -27,6 +27,11 @@ GEMV_EXTERN void gemv_set_backend(struct gemv_t *gemv, const char *backend);
 
 GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, float *A);
 
+typedef enum { GEMV_FP64 = 0, GEMV_FP32 } gemv_precision_t;
+
+GEMV_EXTERN void gemv_set_precision(struct gemv_t *gemv,
+                                    const gemv_precision_t precision);
+
 typedef enum { GEMV_H2D = 0, GEMV_D2H } gemv_direction_t;
 
 GEMV_EXTERN void gemv_copy(void *dst, const void *src, size_t count,

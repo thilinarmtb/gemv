@@ -87,6 +87,10 @@ void gemv_set_device(struct gemv_t *gemv, int device) { gemv->device = device; }
 
 void gemv_set_matrix(struct gemv_t *gemv, float *A) {}
 
+void gemv_set_precision(struct gemv_t *gemv, gemv_precision_t precision) {
+  gemv->precision = precision;
+}
+
 void gemv_check(const struct gemv_t *gemv) { gemv_check_backend(gemv); }
 
 void gemv(float *y, const struct gemv_t *gemv, const float *x);

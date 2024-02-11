@@ -21,6 +21,7 @@ GEMV_INTERN void gemv_error(const char *fmt, ...);
 
 struct gemv_t {
   int verbose, device, backend;
+  gemv_precision_t precision;
 };
 
 struct gemv_backend_t {
