@@ -45,4 +45,4 @@ GEMV_INTERN void gemv_unregister_backends(void);
 #include "gemv-backend-list.h"
 #undef GEMV_BACKEND
 
-#endif // GEMV_IMPL_H
+#endif // __GEMV_IMPL_H__

@@ -63,7 +63,7 @@ endif()
 
 macro(gemv_add_binary file_name)
   get_filename_component(target ${file_name} NAME_WE)
-  set(target ${target}_name)
+  set(target ${target}-bin)
   add_executable(${target} ${file_name})
   set_target_properties(${target} PROPERTIES VERSION ${PROJECT_VERSION})
   target_compile_options(${target} PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /MX>

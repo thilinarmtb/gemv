@@ -1,5 +1,5 @@
-#if !defined(__GEMV__)
-#define __GEMV__
+#if !defined(__GEMV_H__)
+#define __GEMV_H__
 
 #define GEMV_VISIBILITY(mode) __attribute__((visibility(#mode)))
 
@@ -38,4 +38,4 @@ GEMV_EXTERN void gemv_check(const struct gemv_t *gemv);
 
 GEMV_EXTERN void gemv_finalize(struct gemv_t **gemv);
 
-#endif // GEMV
+#endif // __GEMV_H__
