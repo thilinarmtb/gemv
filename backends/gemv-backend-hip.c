@@ -17,5 +17,5 @@ static void hip_gemv(float *d_y, const float *d_x) {}
 static void hip_finalize(void) { check_hip_runtime(hipFree(d_A)), d_A = NULL; }
 
 void gemv_register_hip(void) {
-  gemv_register_backend("hip", hip_init, hip_copy, hip_gemv, hip_finalize);
+  gemv_backend_register("hip", hip_init, hip_copy, hip_gemv, hip_finalize);
 }

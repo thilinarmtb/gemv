@@ -19,5 +19,5 @@ static void cuda_finalize(void) {
 }
 
 void gemv_register_cuda(void) {
-  gemv_register_backend("cuda", cuda_init, cuda_copy, cuda_gemv, cuda_finalize);
+  gemv_backend_register("cuda", cuda_init, cuda_copy, cuda_gemv, cuda_finalize);
 }

@@ -13,7 +13,7 @@ static struct gemv_backend_t *backend_list = NULL;
 static unsigned backend_count = 0, backend_max_count = 0;
 static int backend_active = -1;
 
-void gemv_register_backend(const char *name,
+void gemv_backend_register(const char *name,
                            void (*init)(int device, int n, const float *A),
                            void (*copy)(void *dest, const void *src,
                                         size_t count,
@@ -34,7 +34,7 @@ void gemv_register_backend(const char *name,
   backend_count++;
 }
 
-void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
+void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
   size_t backend_length = strnlen(backend, GEMV_MAX_BACKEND_LENGTH);
   char backend_lower[GEMV_MAX_BACKEND_LENGTH + 1];
   for (unsigned i = 0; i < backend_length; i++)
@@ -60,7 +60,7 @@ void gemv_backend_run(float *y, const float *x) {
 
 void gemv_backend_finalize(void) {}
 
-void gemv_check(const struct gemv_t *gemv) {
+void gemv_check_impl(const struct gemv_t *gemv) {
   assert(gemv->backend >= 0);
   assert(gemv->device >= 0);
   gemv_log(gemv->verbose, "gemv_check: %s", gemv->backend);
@@ -103,10 +103,9 @@ void gemv_check(const struct gemv_t *gemv) {
   gemv_free(&A), gemv_free(&x), gemv_free(&y);
 }
 
-void gemv_deregister_backends(void) {
-  for (unsigned i = 0; i < backend_count; i++) {
+void gemv_backend_deregister(void) {
+  for (unsigned i = 0; i < backend_count; i++)
     if (backend_list[i].finalize) backend_list[i].finalize();
-  }
 
   backend_count = backend_max_count = 0, gemv_free(&backend_list);
 }

@@ -1,7 +1,7 @@
-#include "gemv.h"
-
 #include <assert.h>
 #include <stddef.h>
+
+#include "gemv.h"
 
 int main(int argc, char *argv[]) {
   struct gemv_t *handle = gemv_init(&argc, &argv);

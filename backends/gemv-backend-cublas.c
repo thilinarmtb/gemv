@@ -38,6 +38,6 @@ static void cublas_finalize(void) {
 }
 
 void gemv_register_cublas(void) {
-  gemv_register_backend("cublas", cublas_init, cublas_copy, cublas_gemv,
+  gemv_backend_register("cublas", cublas_init, cublas_copy, cublas_gemv,
                         cublas_finalize);
 }

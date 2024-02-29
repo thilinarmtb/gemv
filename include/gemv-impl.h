@@ -32,7 +32,14 @@ struct gemv_backend_t {
   void (*finalize)(void);
 };
 
-GEMV_INTERN void gemv_register_backend(
+GEMV_INTERN void gemv_set_backend_impl(struct gemv_t *gemv,
+                                       const char *backend);
+
+GEMV_INTERN void gemv_set_verbose_impl(const gemv_verbose_t level);
+
+GEMV_INTERN void gemv_check_impl(const struct gemv_t *gemv);
+
+GEMV_INTERN void gemv_backend_register(
     const char *name, void (*init)(int device, int n, const float *A),
     void (*copy)(void *dest, const void *src, size_t count,
                  gemv_direction_t direction),
@@ -45,7 +52,7 @@ GEMV_INTERN void gemv_backend_run(float *y, const float *x);
 
 GEMV_INTERN void gemv_backend_finalize(void);
 
-GEMV_INTERN void gemv_deregister_backends(void);
+GEMV_INTERN void gemv_backend_deregister(void);
 
 #define GEMV_BACKEND(name) GEMV_INTERN void gemv_register_##name(void);
 #include "backends/gemv-backend-list.h"

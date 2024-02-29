@@ -34,20 +34,18 @@ GEMV_EXTERN void gemv_set_device(struct gemv_t *gemv, int device);
 GEMV_EXTERN void gemv_set_backend(struct gemv_t *gemv, const char *backend);
 
 typedef enum { GEMV_FP64 = 0, GEMV_FP32 } gemv_precision_t;
-
 GEMV_EXTERN void gemv_set_precision(struct gemv_t *gemv,
                                     const gemv_precision_t precision);
 
 GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, const double *A);
 
-typedef enum { GEMV_H2D = 0, GEMV_D2H } gemv_direction_t;
+GEMV_EXTERN void gemv_check(const struct gemv_t *gemv);
 
+typedef enum { GEMV_H2D = 0, GEMV_D2H } gemv_direction_t;
 GEMV_EXTERN void gemv_copy(void *dst, const void *src, size_t count,
                            const gemv_direction_t direction);
 
 GEMV_EXTERN void gemv_run(void *y, const struct gemv_t *gemv, const void *x);
-
-GEMV_EXTERN void gemv_check(const struct gemv_t *gemv);
 
 GEMV_EXTERN void gemv_finalize(struct gemv_t **gemv);
 

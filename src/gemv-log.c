@@ -6,7 +6,7 @@
 
 static gemv_verbose_t log_level = 0;
 
-void gemv_set_verbose(const gemv_verbose_t level) {
+void gemv_set_verbose_impl(const gemv_verbose_t level) {
   if (level < GEMV_MUTE || level > GEMV_ERROR) {
     fprintf(stderr, "gemv_set_verbose: Invalid verbose level: %d\n", level);
     exit(EXIT_FAILURE);

@@ -33,7 +33,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   char backend[GEMV_MAX_BACKEND_LENGTH + 1];
   strncpy(backend, GEMV_DEFAULT_BACKEND, GEMV_MAX_BACKEND_LENGTH);
 
-  if (argc == NULL || *argc == 0 || argv_ == NULL) return;
+  if (argc == NULL || *argc == 0 || argv_ == NULL) goto set_options;
 
   char **argv = *argv_;
   for (;;) {
@@ -52,6 +52,11 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
 
   for (int i = optind; i < *argc; i++) argv[i - optind] = argv[i];
   *argc -= optind;
+
+set_options:
+  gemv_set_verbose(gemv->verbose);
+  gemv_set_device(gemv, gemv->device);
+  gemv_set_backend(gemv, backend);
 }
 
 struct gemv_t *gemv_init(int *argc, char ***argv) {
@@ -61,10 +66,11 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
 
   // Initialize the gemv_t struct.
   struct gemv_t *gemv = gemv_calloc(struct gemv_t, 1);
+
+  // Parse command line options if present.
   parse_opts(gemv, argc, (char ***)argv);
 
-  gemv_set_verbose(gemv->verbose);
-
+  // Log info if verbose level is set.
   gemv_log(gemv->verbose, "parse_opts: verbose: %d", gemv->verbose);
   gemv_log(gemv->verbose, "parse_opts: device: %d", gemv->device);
   gemv_log(gemv->verbose, "parse_opts: backend: %s", gemv->backend);
@@ -72,20 +78,30 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   return gemv;
 }
 
+void gemv_set_verbose(const gemv_verbose_t verbose) {
+  gemv_set_verbose_impl(verbose);
+}
+
 void gemv_set_device(struct gemv_t *gemv, int device) { gemv->device = device; }
+
+void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
+  gemv_set_backend_impl(gemv, backend);
+}
 
 void gemv_set_matrix(struct gemv_t *gemv, const double *A) {}
 
-void gemv_set_precision(struct gemv_t *gemv, gemv_precision_t precision) {
+void gemv_set_precision(struct gemv_t *gemv, const gemv_precision_t precision) {
   gemv->precision = precision;
 }
 
-void gemv_run(void *y, const struct gemv_t *gemv, const void *x) {}
+void gemv_check(const struct gemv_t *gemv) { gemv_check_impl(gemv); }
 
 void gemv_copy(void *dst, const void *src, size_t count,
                const gemv_direction_t direction) {}
 
+void gemv_run(void *y, const struct gemv_t *gemv, const void *x) {}
+
 void gemv_finalize(struct gemv_t **gemv) {
-  gemv_deregister_backends();
+  gemv_backend_deregister();
   gemv_free(gemv);
 }

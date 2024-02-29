@@ -39,6 +39,6 @@ static void hipblas_finalize(void) {
 }
 
 void gemv_register_hipblas(void) {
-  gemv_register_backend("hipblas", hipblas_init, hip_copy, hipblas_gemv,
+  gemv_backend_register("hipblas", hipblas_init, hip_copy, hipblas_gemv,
                         hipblas_finalize);
 }
