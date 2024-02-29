@@ -1,3 +1,5 @@
+#include "gemv-hip.h"
+
 #include <hipblas/hipblas.h>
 
 static hipblasHandle_t handle = NULL;
@@ -22,11 +24,11 @@ static void hipblas_gemv(float *d_y, const float *d_x) {
 }
 
 static void hipblas_finalize(void) {
-  check_hip_rumtime(hipFree(d_A)), d_A = NULL;
+  check_hip_runtime(hipFree(d_A)), d_A = NULL;
   hipblasDestroy(handle), handle = NULL;
 }
 
-void gemv_register_hip(void) {
+void gemv_register_hipblas(void) {
   gemv_register_backend("hipblas", hipblas_init, hip_copy, hipblas_gemv,
                         hipblas_finalize);
 }

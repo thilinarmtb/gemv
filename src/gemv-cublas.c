@@ -1,6 +1,6 @@
-#include <cublas_v2.h>
-
 #include "gemv-cuda.h"
+
+#include <cublas_v2.h>
 
 static cublasHandle_t handle = NULL;
 static float *d_A = NULL;
@@ -27,7 +27,7 @@ static void cublas_finalize(void) {
   cublasDestroy(handle), handle = NULL;
 }
 
-void gemv_register_cuda(void) {
+void gemv_register_cublas(void) {
   gemv_register_backend("cublas", cublas_init, cublas_copy, cublas_gemv,
                         cublas_finalize);
 }

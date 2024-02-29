@@ -108,13 +108,13 @@ if (HIP_FOUND AND NOT TARGET gemv::HIP)
     INTERFACE_LINK_LIBRARIES "${HIP_LIBRARIES}"
   )
 
-  find_package(rocblas)
-  if (TARGET roc::rocblass)
-    target_link_libraries(gemv::HIP INTERFACE roc::rocblas)
+  find_package(hipblas)
+  if (TARGET hip::hipblass)
+    target_link_libraries(gemv::HIP INTERFACE hip::hipblas)
   endif()
 endif()
 
-if (TARGET roc::rocblas AND "${GEMV_DEFAULT_BACKEND}" STREQUAL "")
+if (TARGET hip::hipblas AND "${GEMV_DEFAULT_BACKEND}" STREQUAL "")
   set(GEMV_DEFAULT_BACKEND "hipblas")
 endif()
 
