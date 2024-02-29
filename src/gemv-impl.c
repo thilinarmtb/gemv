@@ -61,9 +61,9 @@ void gemv_backend_run(float *y, const float *x) {
 void gemv_backend_finalize(void) {}
 
 void gemv_check_impl(const struct gemv_t *gemv) {
+  assert((void *)gemv != NULL);
   assert(gemv->backend >= 0);
   assert(gemv->device >= 0);
-  gemv_log(gemv->verbose, "gemv_check: %s", gemv->backend);
 
   // Initialize the matrix and RHS.
   srand(time(NULL));
@@ -96,7 +96,7 @@ void gemv_check_impl(const struct gemv_t *gemv) {
   }
   gemv_free(&y_ref);
 
-  gemv_log(gemv->verbose, "gemv_check: pass.");
+  gemv_log(GEMV_INFO, "gemv_check: pass.");
 
   gemv_backend_finalize();
 

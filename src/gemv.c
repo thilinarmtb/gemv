@@ -73,9 +73,9 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   parse_opts(gemv, argc, (char ***)argv);
 
   // Log info if verbose level is set.
-  gemv_log(gemv->verbose, "parse_opts: verbose: %d", gemv->verbose);
-  gemv_log(gemv->verbose, "parse_opts: device: %d", gemv->device);
-  gemv_log(gemv->verbose, "parse_opts: backend: %s", gemv->backend);
+  gemv_log(GEMV_INFO, "parse_opts: verbose: %d", gemv->verbose);
+  gemv_log(GEMV_INFO, "parse_opts: device: %d", gemv->device);
+  gemv_log(GEMV_INFO, "parse_opts: backend: %d", gemv->backend);
 
   return gemv;
 }
