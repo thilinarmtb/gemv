@@ -18,7 +18,7 @@ void gemv_register_backend(const char *name,
                            void (*copy)(void *dest, const void *src,
                                         size_t count,
                                         gemv_direction_t direction),
-                           void (*gemv)(float *y, const float *x),
+                           void (*run)(float *y, const float *x),
                            void (*finalize)(void)) {
   if (backend_count == backend_max_count) {
     backend_max_count += backend_max_count / 2 + 1;
@@ -29,7 +29,7 @@ void gemv_register_backend(const char *name,
   strncpy(backend_list[backend_count].name, name, GEMV_MAX_BACKEND_LENGTH);
   backend_list[backend_count].init = init;
   backend_list[backend_count].copy = copy;
-  backend_list[backend_count].gemv = gemv;
+  backend_list[backend_count].run = run;
   backend_list[backend_count].finalize = finalize;
   backend_count++;
 }
