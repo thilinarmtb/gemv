@@ -19,12 +19,8 @@ static inline void cuda_copy(void *dest, const void *src, size_t count,
                              gemv_direction_t direction) {
   enum cudaMemcpyKind kind = cudaMemcpyDefault;
   switch (direction) {
-  case GEMV_D2H:
-    kind = cudaMemcpyDeviceToHost;
-    break;
-  case GEMV_H2D:
-    kind = cudaMemcpyHostToDevice;
-    break;
+  case GEMV_D2H: kind = cudaMemcpyDeviceToHost; break;
+  case GEMV_H2D: kind = cudaMemcpyHostToDevice; break;
   }
 
   check_cuda_runtime(cudaMemcpy(dest, src, count, kind));

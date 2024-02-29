@@ -19,12 +19,8 @@ static void hip_copy(void *dest, const void *src, size_t count,
                      gemv_direction_t direction) {
   enum hipMemcpyKind kind = hipMemcpyDefault;
   switch (direction) {
-  case GEMV_D2H:
-    kind = hipMemcpyDeviceToHost;
-    break;
-  case GEMV_H2D:
-    kind = hipMemcpyHostToDevice;
-    break;
+  case GEMV_D2H: kind = hipMemcpyDeviceToHost; break;
+  case GEMV_H2D: kind = hipMemcpyHostToDevice; break;
   }
 
   check_hip_runtime(hipMemcpy(dest, src, count, kind));

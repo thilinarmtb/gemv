@@ -42,29 +42,16 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
     if (c == -1) break;
 
     switch (c) {
-    case 10:
-      gemv->verbose = atoi(optarg);
-      break;
-    case 20:
-      gemv->device = atoi(optarg);
-      break;
-    case 30:
-      strncpy(backend, optarg, GEMV_MAX_BACKEND_LENGTH);
-      break;
-    case 40:
-      gemv->precision = atoi(optarg);
-      break;
-    case 99:
-      print_help(argv[0], EXIT_SUCCESS);
-      break;
-    default:
-      print_help(argv[0], EXIT_FAILURE);
-      break;
+    case 10: gemv->verbose = atoi(optarg); break;
+    case 20: gemv->device = atoi(optarg); break;
+    case 30: strncpy(backend, optarg, GEMV_MAX_BACKEND_LENGTH); break;
+    case 40: gemv->precision = atoi(optarg); break;
+    case 99: print_help(argv[0], EXIT_SUCCESS); break;
+    default: print_help(argv[0], EXIT_FAILURE); break;
     }
   }
 
-  for (int i = optind; i < *argc; i++)
-    argv[i - optind] = argv[i];
+  for (int i = optind; i < *argc; i++) argv[i - optind] = argv[i];
   *argc -= optind;
 }
 

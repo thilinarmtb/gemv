@@ -70,12 +70,10 @@ void gemv_check(const struct gemv_t *gemv) {
 
   const size_t size = 8192;
   double *A = gemv_calloc(double, size *size);
-  for (unsigned i = 0; i < size * size; i++)
-    A[i] = (double)rand() / RAND_MAX;
+  for (unsigned i = 0; i < size * size; i++) A[i] = (double)rand() / RAND_MAX;
 
   float *x = gemv_calloc(float, size);
-  for (unsigned i = 0; i < size; i++)
-    x[i] = (float)rand() / RAND_MAX;
+  for (unsigned i = 0; i < size; i++) x[i] = (float)rand() / RAND_MAX;
 
   float *y = gemv_calloc(float, size);
 
@@ -89,8 +87,7 @@ void gemv_check(const struct gemv_t *gemv) {
   float *y_ref = gemv_calloc(float, size);
   for (unsigned i = 0; i < size; i++) {
     float sum = 0.0f;
-    for (unsigned j = 0; j < size; j++)
-      sum += A[i * size + j] * x[j];
+    for (unsigned j = 0; j < size; j++) sum += A[i * size + j] * x[j];
     y_ref[i] = sum;
   }
   for (unsigned i = 0; i < size; i++) {
