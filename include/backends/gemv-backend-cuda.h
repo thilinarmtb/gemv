@@ -1,5 +1,5 @@
-#if !defined(__GEMV_CUDA_H__)
-#define __GEMV_CUDA_H__
+#if !defined(__GEMV_BACKEND_CUDA_H__)
+#define __GEMV_BACKEND_CUDA_H__
 
 #include <cuda_runtime.h>
 
@@ -26,4 +26,4 @@ static inline void cuda_copy(void *dest, const void *src, size_t count,
   check_cuda_runtime(cudaMemcpy(dest, src, count, kind));
 }
 
-#endif // __GEMV_CUDA_H__
+#endif // __GEMV_BACKEND_CUDA_H__

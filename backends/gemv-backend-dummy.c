@@ -4,6 +4,6 @@
   GEMV_INTERN void gemv_register_##name(void) __attribute__((weak));           \
   void gemv_register_##name(void) { return; }
 
-#include "gemv-backend-list.h"
+#include "backends/gemv-backend-list.h"
 
 #undef GEMV_BACKEND

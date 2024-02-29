@@ -56,7 +56,7 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
 
 struct gemv_t *gemv_init(int *argc, char ***argv) {
 #define GEMV_BACKEND(name) gemv_register_##name();
-#include "gemv-backend-list.h"
+#include "backends/gemv-backend-list.h"
 #undef GEMV_BACKEND
 
   // Initialize the gemv_t struct.
