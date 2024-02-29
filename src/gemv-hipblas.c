@@ -2,6 +2,16 @@
 
 #include <hipblas/hipblas.h>
 
+static inline void check_hipblas_(hipblasStatus_t status, const char *file,
+                                  const unsigned line) {
+  if (status == HIPBLAS_STATUS_SUCCESS) return;
+  fprintf(stderr, "hipBLAS error: %d in file: %s line: %u\n", status, file,
+          line);
+  exit(EXIT_FAILURE);
+}
+
+#define check_hipblas(call) check_hipblas_(call, __FILE__, __LINE__)
+
 static hipblasHandle_t handle = NULL;
 static float *d_A = NULL;
 static int n = 0;

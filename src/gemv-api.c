@@ -35,7 +35,6 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
 
   if (argc == NULL || *argc == 0 || argv_ == NULL) return;
 
-  // TODO: Check if the input is valid.
   char **argv = *argv_;
   for (;;) {
     int c = getopt_long(*argc, argv, "", long_options, NULL);
