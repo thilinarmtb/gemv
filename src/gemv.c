@@ -10,21 +10,23 @@ static void print_help(const char *name, int status) {
   FILE *fp = (status == EXIT_SUCCESS) ? stdout : stderr;
   fprintf(fp, "Usage: %s [OPTIONS]\n", name);
   fprintf(fp, "Options:\n");
-  fprintf(fp, "  --verbose=<verbose level>, Verbose level (0, 1, 2, ...).\n");
-  fprintf(fp, "  --device=<device id>, Device ID (0, 1, 2, ...).\n");
-  fprintf(fp, "  --backend=<backend>, Backend (CUDA, HIP, OpenCL, etc.).\n");
-  fprintf(fp, "  --help, Prints this help message and exit.\n");
+  fprintf(fp,
+          "  --gemv-verbose=<verbose level>, Verbose level (0, 1, 2, ...).\n");
+  fprintf(fp, "  --gemv-device=<device id>, Device ID (0, 1, 2, ...).\n");
+  fprintf(fp,
+          "  --gemv-backend=<backend>, Backend (CUDA, HIP, OpenCL, etc.).\n");
+  fprintf(fp, "  --gemv-help, Prints this help message and exit.\n");
   fflush(fp);
   exit(status);
 }
 
 static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   static struct option long_options[] = {
-      {"verbose", optional_argument, 0, 10},
-      {"device", optional_argument, 0, 20},
-      {"backend", required_argument, 0, 30},
-      {"precision", required_argument, 0, 40},
-      {"help", no_argument, 0, 99},
+      {"gemv-verbose", optional_argument, 0, 10},
+      {"gemv-device", optional_argument, 0, 20},
+      {"gemv-backend", required_argument, 0, 30},
+      {"gemv-precision", required_argument, 0, 40},
+      {"gemv-help", no_argument, 0, 99},
       {0, 0, 0, 0}};
 
   // Default values for optional arguments.
