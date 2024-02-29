@@ -21,7 +21,8 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-set(GEMV_SOURCES src/gemv-api.c src/gemv-impl.c src/gemv-log.c backends/gemv-backend-dummy.c)
+set(GEMV_SOURCES src/gemv.c src/gemv-impl.c src/gemv-log.c
+  backends/gemv-backend-dummy.c)
 
 if (ENABLE_HIP)
   find_package(HIP)
