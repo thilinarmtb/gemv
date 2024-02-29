@@ -2,6 +2,16 @@
 
 #include <cublas_v2.h>
 
+static inline void check_cublas_(cublasStatus_t status, const char *file,
+                                 const unsigned line) {
+  if (status == CUBLAS_STATUS_SUCCESS) return;
+  fprintf(stderr, "cuBLAS error: %d in file: %s line: %u\n", status, file,
+          line);
+  exit(EXIT_FAILURE);
+}
+
+#define check_cublas(call) check_cublas_(call, __FILE__, __LINE__)
+
 static cublasHandle_t handle = NULL;
 static float *d_A = NULL;
 static int n = 0;
