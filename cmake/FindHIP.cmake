@@ -114,7 +114,7 @@ if (HIP_FOUND AND NOT TARGET gemv::HIP)
   endif()
 endif()
 
-if (TARGET hip::hipblas AND "${GEMV_DEFAULT_BACKEND}" STREQUAL "")
+if (TARGET roc::hipblas AND "${GEMV_DEFAULT_BACKEND}" STREQUAL "")
   set(GEMV_DEFAULT_BACKEND "hipblas")
 endif()
 
