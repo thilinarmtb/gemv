@@ -109,8 +109,8 @@ if (HIP_FOUND AND NOT TARGET gemv::HIP)
   )
 
   find_package(hipblas)
-  if (TARGET hip::hipblass)
-    target_link_libraries(gemv::HIP INTERFACE hip::hipblas)
+  if (TARGET roc::hipblas)
+    target_link_libraries(gemv::HIP INTERFACE roc::hipblas)
   endif()
 endif()
 
