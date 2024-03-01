@@ -5,12 +5,18 @@
 
 int main(int argc, char *argv[]) {
   struct gemv_t *handle = gemv_init(&argc, &argv);
-  assert((void *)handle != NULL);
 
-  gemv_check(handle);
+  gemv_set_verbose(GEMV_INFO);
+  gemv_set_device(handle, 0);
+  gemv_set_backend(handle, "hip");
+  gemv_set_precision(handle, GEMV_FP64);
+
+  const double A[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+  gemv_set_matrix(handle, 3, 3, A);
+
+  gemv_init_session(handle);
 
   gemv_finalize(&handle);
-  assert((void *)handle == NULL);
 
   return 0;
 }
