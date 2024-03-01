@@ -75,32 +75,34 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   // Parse command line options if present.
   parse_opts(gemv, argc, (char ***)argv);
 
-  // Log info if verbose level is set.
-  gemv_log(GEMV_INFO, "gemv_init: device: %d", gemv->device);
-  gemv_log(GEMV_INFO, "gemv_init: backend: %d", gemv->backend);
-  gemv_log(GEMV_INFO, "gemv_init: precision: %d", gemv->precision);
-
   return gemv;
 }
 
 void gemv_set_verbose(const gemv_verbose_t verbose) {
+  gemv_log(GEMV_INFO, "gemv_set_verbose: %d", verbose);
   gemv_set_verbose_impl(verbose);
 }
 
-void gemv_set_device(struct gemv_t *gemv, int device) { gemv->device = device; }
+void gemv_set_device(struct gemv_t *gemv, int device) {
+  gemv_log(GEMV_INFO, "gemv_set_device: %d", device);
+  gemv->device = device;
+}
 
 void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
+  gemv_log(GEMV_INFO, "gemv_set_backend: %s", backend);
   gemv_set_backend_impl(gemv, backend);
 }
 
 void gemv_set_matrix(struct gemv_t *gemv, const unsigned n, const unsigned m,
                      const double *A) {
+  gemv_log(GEMV_INFO, "gemv_set_matrix: n = %u, m = %u", n, m);
   gemv->m = m, gemv->n = n;
   gemv->A = gemv_realloc(gemv->A, double, m *n);
   memcpy(gemv->A, A, sizeof(double) * m * n);
 }
 
 void gemv_set_precision(struct gemv_t *gemv, const gemv_precision_t precision) {
+  gemv_log(GEMV_INFO, "gemv_set_precision: %d", precision);
   gemv->precision = precision;
 }
 
