@@ -7,8 +7,6 @@
 
 #include "gemv-impl.h"
 
-void gemv_free_(void **p) { free(*p), *p = NULL; }
-
 static struct gemv_backend_t *backend_list = NULL;
 static unsigned backend_count = 0, backend_max_count = 0;
 static int backend_active = -1;
@@ -34,6 +32,19 @@ void gemv_backend_register(const char *name,
   backend_count++;
 }
 
+void gemv_backend_init(int backend, int device, size_t size, const double *A) {}
+
+void gemv_backend_run(float *y, const float *x) {}
+
+void gemv_backend_finalize(void) {}
+
+void gemv_backend_deregister(void) {
+  for (unsigned i = 0; i < backend_count; i++)
+    if (backend_list[i].finalize) backend_list[i].finalize();
+
+  backend_count = backend_max_count = 0, gemv_free(&backend_list);
+}
+
 void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
   size_t backend_length = strnlen(backend, GEMV_MAX_BACKEND_LENGTH);
   char backend_lower[GEMV_MAX_BACKEND_LENGTH + 1];
@@ -50,15 +61,6 @@ void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
     }
   }
 }
-
-void gemv_backend_init(int backend, int device, size_t size, const double *A) {}
-
-void gemv_backend_run(float *y, const float *x) {
-  gemv_assert(backend_active >= 0,
-              "gemv_backend_init: A backend is not initialized.");
-}
-
-void gemv_backend_finalize(void) {}
 
 void gemv_check_impl(const struct gemv_t *gemv) {
   assert((void *)gemv != NULL);
@@ -103,9 +105,4 @@ void gemv_check_impl(const struct gemv_t *gemv) {
   gemv_free(&A), gemv_free(&x), gemv_free(&y);
 }
 
-void gemv_backend_deregister(void) {
-  for (unsigned i = 0; i < backend_count; i++)
-    if (backend_list[i].finalize) backend_list[i].finalize();
-
-  backend_count = backend_max_count = 0, gemv_free(&backend_list);
-}
+void gemv_free_(void **p) { free(*p), *p = NULL; }

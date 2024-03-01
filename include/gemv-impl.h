@@ -17,8 +17,6 @@ GEMV_INTERN void gemv_free_(void **p);
 
 GEMV_INTERN void gemv_log(const gemv_verbose_t verbose, const char *fmt, ...);
 
-GEMV_INTERN void gemv_assert(int cond, const char *fmt, ...);
-
 struct gemv_t {
   int verbose, device, backend;
   gemv_precision_t precision;

@@ -37,5 +37,3 @@ void gemv_log(const gemv_verbose_t level, const char *fmt, ...) {
 
   if (level == GEMV_ERROR) exit(EXIT_FAILURE);
 }
-
-void gemv_assert(int cond, const char *fmt, ...) {}
