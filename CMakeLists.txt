@@ -9,6 +9,7 @@ option(ENABLE_HIP "Build HIP backend" ON)
 # Build defaults (which can be overridden at runtime.
 set(GEMV_DEFAULT_VERBOSE 1)
 set(GEMV_DEFAULT_DEVICE 0)
+set(GEMV_DEFAULT_PRECISION 0)
 set(GEMV_DEFAULT_BACKEND "")
 set(GEMV_MAX_BACKEND_LENGTH 16)
 

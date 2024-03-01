@@ -30,8 +30,9 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
       {0, 0, 0, 0}};
 
   // Default values for optional arguments.
-  gemv->verbose = GEMV_DEFAULT_VERBOSE;
-  gemv->device = GEMV_DEFAULT_DEVICE;
+  int device = GEMV_DEFAULT_DEVICE;
+  gemv_verbose_t verbose = GEMV_DEFAULT_VERBOSE;
+  gemv_precision_t precision = GEMV_DEFAULT_PRECISION;
   char backend[GEMV_MAX_BACKEND_LENGTH + 1];
   strncpy(backend, GEMV_DEFAULT_BACKEND, GEMV_MAX_BACKEND_LENGTH);
 
@@ -43,10 +44,10 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
     if (c == -1) break;
 
     switch (c) {
-    case 10: gemv->verbose = atoi(optarg); break;
-    case 20: gemv->device = atoi(optarg); break;
+    case 10: verbose = atoi(optarg); break;
+    case 20: device = atoi(optarg); break;
     case 30: strncpy(backend, optarg, GEMV_MAX_BACKEND_LENGTH); break;
-    case 40: gemv->precision = atoi(optarg); break;
+    case 40: precision = atoi(optarg); break;
     case 99: print_help(argv[0], EXIT_SUCCESS); break;
     default: print_help(argv[0], EXIT_FAILURE); break;
     }
@@ -56,9 +57,10 @@ static void parse_opts(struct gemv_t *gemv, int *argc, char ***argv_) {
   *argc -= optind;
 
 set_options:
-  gemv_set_verbose(gemv->verbose);
-  gemv_set_device(gemv, gemv->device);
+  gemv_set_verbose(verbose);
+  gemv_set_device(gemv, device);
   gemv_set_backend(gemv, backend);
+  gemv_set_precision(gemv, precision);
 }
 
 struct gemv_t *gemv_init(int *argc, char ***argv) {
@@ -74,9 +76,9 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
   parse_opts(gemv, argc, (char ***)argv);
 
   // Log info if verbose level is set.
-  gemv_log(GEMV_INFO, "parse_opts: verbose: %d", gemv->verbose);
-  gemv_log(GEMV_INFO, "parse_opts: device: %d", gemv->device);
-  gemv_log(GEMV_INFO, "parse_opts: backend: %d", gemv->backend);
+  gemv_log(GEMV_INFO, "gemv_init: device: %d", gemv->device);
+  gemv_log(GEMV_INFO, "gemv_init: backend: %d", gemv->backend);
+  gemv_log(GEMV_INFO, "gemv_init: precision: %d", gemv->precision);
 
   return gemv;
 }
