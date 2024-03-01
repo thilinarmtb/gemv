@@ -106,7 +106,7 @@ void gemv_set_precision(struct gemv_t *gemv, const gemv_precision_t precision) {
   gemv->precision = precision;
 }
 
-void gemv_check(const struct gemv_t *gemv) { gemv_check_impl(gemv); }
+void gemv_init_session(const struct gemv_t *gemv) { gemv_backend_init(gemv); }
 
 void gemv_copy(void *dst, const void *src, size_t count,
                const gemv_direction_t direction) {}

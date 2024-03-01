@@ -9,10 +9,9 @@
 
 static struct gemv_backend_t *backend_list = NULL;
 static unsigned backend_count = 0, backend_max_count = 0;
-static int backend_active = -1;
 
 void gemv_backend_register(const char *name,
-                           void (*init)(int device, int n, const float *A),
+                           void (*init)(const struct gemv_t *gemv),
                            void (*copy)(void *dest, const void *src,
                                         size_t count,
                                         gemv_direction_t direction),
@@ -32,7 +31,9 @@ void gemv_backend_register(const char *name,
   backend_count++;
 }
 
-void gemv_backend_init(int backend, int device, size_t size, const double *A) {}
+void gemv_backend_init(const struct gemv_t *gemv) {
+  backend_list[gemv->backend].init(gemv);
+}
 
 void gemv_backend_run(float *y, const float *x) {}
 
@@ -60,16 +61,10 @@ void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
       break;
     }
   }
+  gemv_log(GEMV_INFO, "gemv_set_backend_impl: %d", gemv->backend);
 }
 
 void gemv_check_impl(const struct gemv_t *gemv) {
-  assert((void *)gemv != NULL);
-  assert(gemv->backend >= 0);
-  assert(gemv->device >= 0);
-
-  // Initialize the matrix and RHS.
-  srand(time(NULL));
-
   const size_t size = 8192;
   double *A = gemv_calloc(double, size *size);
   for (unsigned i = 0; i < size * size; i++) A[i] = (double)rand() / RAND_MAX;
@@ -78,9 +73,6 @@ void gemv_check_impl(const struct gemv_t *gemv) {
   for (unsigned i = 0; i < size; i++) x[i] = (float)rand() / RAND_MAX;
 
   float *y = gemv_calloc(float, size);
-
-  // Initialize the backend:
-  gemv_backend_init(gemv->backend, gemv->device, size, A);
 
   // Run the gemv:
   gemv_backend_run(y, x);

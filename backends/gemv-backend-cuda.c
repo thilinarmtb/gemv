@@ -1,15 +1,21 @@
 #include "backends/gemv-backend-cuda.h"
 
-static float *d_A = NULL;
-static int n = 0;
+static void *d_A = NULL;
+static unsigned n = 0, m = 0;
+static int initialized = 0;
 
-static void cuda_init(int device, int n_, const float *A) {
-  check_cuda_runtime(cudaSetDevice(device));
-  n = n_;
+static void cuda_init(const struct gemv_t *gemv) {
+  check_cuda_runtime(cudaSetDevice(gemv->device));
 
-  check_cuda_runtime(cudaMalloc((void **)&d_A, n * n * sizeof(float)));
+  n = gemv->n, m = gemv->m;
+  check_cuda_runtime(cudaMalloc((void **)&d_A, n * m * sizeof(double)));
+
+#if 0
   check_cuda_runtime(
       cudaMemcpy(d_A, A, n * n * sizeof(float), cudaMemcpyHostToDevice));
+#endif
+
+  initialized = 1;
 }
 
 static void cuda_gemv(float *d_y, const float *d_x) {}

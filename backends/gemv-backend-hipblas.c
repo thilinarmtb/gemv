@@ -13,18 +13,24 @@ static inline void check_hipblas_(hipblasStatus_t status, const char *file,
 #define check_hipblas(call) check_hipblas_(call, __FILE__, __LINE__)
 
 static hipblasHandle_t handle = NULL;
-static float *d_A = NULL;
-static int n = 0;
+static void *d_A = NULL;
+static unsigned n = 0, m = 0;
+static int initialized = 0;
 
-static void hipblas_init(int device, int n_, const float *A) {
-  check_hip_runtime(hipSetDevice(device));
-  n = n_;
+static void hipblas_init(const struct gemv_t *gemv) {
+  check_hip_runtime(hipSetDevice(gemv->device));
 
-  check_hip_runtime(hipMalloc((void **)&d_A, n * n * sizeof(float)));
+  n = gemv->n, m = gemv->m;
+  check_hip_runtime(hipMalloc((void **)&d_A, n * m * sizeof(double)));
+
+#if 0
   check_hip_runtime(
       hipMemcpy(d_A, A, n * n * sizeof(float), hipMemcpyHostToDevice));
+#endif
 
   hipblasCreate(&handle);
+
+  initialized = 1;
 }
 
 static void hipblas_gemv(float *d_y, const float *d_x) {
