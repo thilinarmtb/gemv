@@ -37,7 +37,8 @@ typedef enum { GEMV_FP64 = 0, GEMV_FP32 } gemv_precision_t;
 GEMV_EXTERN void gemv_set_precision(struct gemv_t *gemv,
                                     const gemv_precision_t precision);
 
-GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, const double *A);
+GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, unsigned n, unsigned m,
+                                 const double *A);
 
 GEMV_EXTERN void gemv_check(const struct gemv_t *gemv);
 

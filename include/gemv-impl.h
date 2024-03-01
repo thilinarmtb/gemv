@@ -8,8 +8,9 @@
 #include "gemv-defs.h"
 #include "gemv.h"
 
-// Dynamic memory allocation function.
+// Dynamic memory allocation functions.
 #define gemv_calloc(T, n) ((T *)calloc(n, sizeof(T)))
+#define gemv_realloc(ptr, T, n) (T *)realloc(ptr, (n) * sizeof(T))
 
 // Dynamic memory deallocation function.
 GEMV_INTERN void gemv_free_(void **p);
@@ -20,6 +21,8 @@ GEMV_INTERN void gemv_log(const gemv_verbose_t verbose, const char *fmt, ...);
 struct gemv_t {
   int verbose, device, backend;
   gemv_precision_t precision;
+  unsigned m, n;
+  double *A;
 };
 
 struct gemv_backend_t {

@@ -62,6 +62,7 @@ set_options:
 }
 
 struct gemv_t *gemv_init(int *argc, char ***argv) {
+  // Register all the backends.
 #define GEMV_BACKEND(name) gemv_register_##name();
 #include "backends/gemv-backend-list.h"
 #undef GEMV_BACKEND
@@ -90,7 +91,12 @@ void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
   gemv_set_backend_impl(gemv, backend);
 }
 
-void gemv_set_matrix(struct gemv_t *gemv, const double *A) {}
+void gemv_set_matrix(struct gemv_t *gemv, const unsigned n, const unsigned m,
+                     const double *A) {
+  gemv->m = m, gemv->n = n;
+  gemv->A = gemv_realloc(gemv->A, double, m *n);
+  memcpy(gemv->A, A, sizeof(double) * m * n);
+}
 
 void gemv_set_precision(struct gemv_t *gemv, const gemv_precision_t precision) {
   gemv->precision = precision;
@@ -105,5 +111,6 @@ void gemv_run(void *y, const struct gemv_t *gemv, const void *x) {}
 
 void gemv_finalize(struct gemv_t **gemv) {
   gemv_backend_deregister();
+  gemv_free(&(*gemv)->A);
   gemv_free(gemv);
 }
