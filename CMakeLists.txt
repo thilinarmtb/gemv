@@ -87,11 +87,10 @@ install(TARGETS gemv LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
 find_program(CLANG_FORMAT NAMES clang-format)
 if (CLANG_FORMAT)
   add_custom_target(format
-    COMMAND ${CLANG_FORMAT} -i ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
+    COMMAND find ${CMAKE_SOURCE_DIR} -not -path ${CMAKE_BINARY_DIR} -name "*.[ch]" -exec ${CLANG_FORMAT} -i {} +
     COMMENT "Running clang-format ...")
   add_custom_target(format-check
-    COMMAND ${CLANG_FORMAT} --dry-run -Werror -i
-      ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
+    COMMAND find ${CMAKE_SOURCE_DIR} -not -path ${CMAKE_BINARY_DIR} -name "*.[ch]" -exec ${CLANG_FORMAT} --dry-run -Werror -i {} +
     COMMENT "Running clang-format check ...")
 endif()
 
