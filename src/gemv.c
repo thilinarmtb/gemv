@@ -79,18 +79,20 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
 }
 
 void gemv_set_verbose(const gemv_verbose_t verbose) {
-  gemv_log(GEMV_INFO, "gemv_set_verbose: %d", verbose);
   gemv_set_verbose_impl(verbose);
+  gemv_log(GEMV_INFO, "gemv_set_verbose: done.");
 }
 
 void gemv_set_device(struct gemv_t *gemv, int device) {
-  gemv_log(GEMV_INFO, "gemv_set_device: %d", device);
+  gemv_log(GEMV_INFO, "gemv_set_device: device = %d", device);
   gemv->device = device;
+  gemv_log(GEMV_INFO, "gemv_set_device: done.");
 }
 
 void gemv_set_backend(struct gemv_t *gemv, const char *backend) {
-  gemv_log(GEMV_INFO, "gemv_set_backend: %s", backend);
+  gemv_log(GEMV_INFO, "gemv_set_backend: backend = %s", backend);
   gemv_set_backend_impl(gemv, backend);
+  gemv_log(GEMV_INFO, "gemv_set_backend: done.");
 }
 
 void gemv_set_matrix(struct gemv_t *gemv, const unsigned n, const unsigned m,
@@ -99,16 +101,26 @@ void gemv_set_matrix(struct gemv_t *gemv, const unsigned n, const unsigned m,
   gemv->m = m, gemv->n = n;
   gemv->A = gemv_realloc(gemv->A, double, m *n);
   memcpy(gemv->A, A, sizeof(double) * m * n);
+  gemv_log(GEMV_INFO, "gemv_set_matrix: done.");
 }
 
 void gemv_set_precision(struct gemv_t *gemv, const gemv_precision_t precision) {
-  gemv_log(GEMV_INFO, "gemv_set_precision: %d", precision);
+  gemv_log(GEMV_INFO, "gemv_set_precision: precision = %d", precision);
   gemv->precision = precision;
+  gemv_log(GEMV_INFO, "gemv_set_precision: done.");
 }
 
-void gemv_init_session(const struct gemv_t *gemv) { gemv_backend_init(gemv); }
+void gemv_init_session(const struct gemv_t *gemv) {
+  gemv_log(GEMV_INFO, "gemv_init_session: backend = %d", gemv->backend);
+  gemv_backend_init(gemv);
+  gemv_log(GEMV_INFO, "gemv_init_session: done.");
+}
 
-void gemv_finalize_session(void) { gemv_backend_finalize(); }
+void gemv_finalize_session(void) {
+  gemv_log(GEMV_INFO, "gemv_finalize_session: ..");
+  gemv_backend_finalize();
+  gemv_log(GEMV_INFO, "gemv_finalize_session: done.");
+}
 
 void gemv_copy(void *dst, const void *src, size_t count,
                const gemv_direction_t direction) {}

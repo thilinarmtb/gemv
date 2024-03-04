@@ -5,8 +5,10 @@ static unsigned n = 0, m = 0;
 static int initialized = 0;
 
 static void hip_init(const struct gemv_t *gemv) {
-  check_hip_runtime(hipSetDevice(gemv->device));
+  gemv_log(GEMV_INFO, "hip_init: initialized = %d", initialized);
+  if (initialized) return;
 
+  check_hip_runtime(hipSetDevice(gemv->device));
   n = gemv->n, m = gemv->m;
   check_hip_runtime(hipMalloc((void **)&d_A, n * m * sizeof(double)));
 
@@ -16,11 +18,20 @@ static void hip_init(const struct gemv_t *gemv) {
 #endif
 
   initialized = 1;
+  gemv_log(GEMV_INFO, "hip_init: done.");
 }
 
 static void hip_gemv(float *d_y, const float *d_x) {}
 
-static void hip_finalize(void) { check_hip_runtime(hipFree(d_A)), d_A = NULL; }
+static void hip_finalize(void) {
+  gemv_log(GEMV_INFO, "hip_finalize: initialized = %d", initialized);
+  if (!initialized) return;
+
+  check_hip_runtime(hipFree(d_A)), d_A = NULL;
+  initialized = 0;
+
+  gemv_log(GEMV_INFO, "hip_finalize: done.");
+}
 
 void gemv_register_hip(void) {
   gemv_backend_register("hip", hip_init, hip_copy, hip_gemv, hip_finalize);

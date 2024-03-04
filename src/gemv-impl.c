@@ -18,6 +18,8 @@ void gemv_backend_register(const char *name,
                                         gemv_direction_t direction),
                            void (*run)(float *y, const float *x),
                            void (*finalize)(void)) {
+  gemv_log(GEMV_INFO, "gemv_backend_register: backend = %s", name);
+
   if (backend_count == backend_max_count) {
     backend_max_count += backend_max_count / 2 + 1;
     backend_list =
@@ -30,25 +32,43 @@ void gemv_backend_register(const char *name,
   backend_list[backend_count].run = run;
   backend_list[backend_count].finalize = finalize;
   backend_count++;
+
+  gemv_log(GEMV_INFO, "gemv_backend_register: backend_count = %d, done.",
+           backend_count);
 }
 
 void gemv_backend_init(const struct gemv_t *gemv) {
+  gemv_log(GEMV_INFO, "gemv_backend_init: ...");
+
   backend_list[gemv->backend].init(gemv);
   backend_active = gemv->backend;
+
+  gemv_log(GEMV_INFO, "gemv_backend_init: backend_active = %d, done.",
+           backend_active);
 }
 
 void gemv_backend_run(float *y, const float *x) {}
 
 void gemv_backend_finalize(void) {
+  gemv_log(GEMV_INFO, "gemv_backend_finalize: backend_active = %d",
+           backend_active);
+
   backend_list[backend_active].finalize();
   backend_active = -1;
+
+  gemv_log(GEMV_INFO, "gemv_backend_finalize: done.", backend_active);
 }
 
 void gemv_backend_deregister(void) {
+  gemv_log(GEMV_INFO, "gemv_backend_deregister: backend_count = %d",
+           backend_count);
+
   for (unsigned i = 0; i < backend_count; i++)
     if (backend_list[i].finalize) backend_list[i].finalize();
+  gemv_free(&backend_list);
+  backend_count = backend_max_count = 0;
 
-  backend_count = backend_max_count = 0, gemv_free(&backend_list);
+  gemv_log(GEMV_INFO, "gemv_backend_deregister: done.");
 }
 
 void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
@@ -58,15 +78,20 @@ void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
     backend_lower[i] = tolower(backend[i]);
   backend_lower[backend_length] = '\0';
 
+  gemv_log(GEMV_INFO, "gemv_set_backend_impl: %s", backend_lower);
+
   gemv->backend = -1;
   for (unsigned i = 0; i < backend_count; i++) {
-    if (strncmp(backend_lower, backend_list[i].name, GEMV_MAX_BACKEND_LENGTH) ==
-        0) {
-      gemv->backend = i;
-      break;
-    }
+    if (strncmp(backend_lower, backend_list[i].name, GEMV_MAX_BACKEND_LENGTH))
+      continue;
+    gemv->backend = i;
+    break;
   }
-  gemv_log(GEMV_INFO, "gemv_set_backend_impl: %d", gemv->backend);
+
+  if (gemv->backend == -1)
+    gemv_log(GEMV_ERROR, "gemv_set_backend_impl: backend \"%s\" not found.",
+             backend_lower);
+  gemv_log(GEMV_INFO, "gemv_set_backend_impl: done.");
 }
 
 void gemv_check_impl(const struct gemv_t *gemv) {

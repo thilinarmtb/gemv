@@ -37,6 +37,9 @@ static unsigned n = 0, m = 0;
 static int initialized = 0;
 
 static void hipblas_init(const struct gemv_t *gemv) {
+  gemv_log(GEMV_INFO, "hipblas_init: initialized = %d", initialized);
+  if (initialized) return;
+
   check_hip_runtime(hipSetDevice(gemv->device));
 
   n = gemv->n, m = gemv->m;
@@ -50,6 +53,7 @@ static void hipblas_init(const struct gemv_t *gemv) {
   check_hipblas(hipblasCreate(&handle));
 
   initialized = 1;
+  gemv_log(GEMV_INFO, "hipblas_init: done.");
 }
 
 static void hipblas_gemv(float *d_y, const float *d_x) {
@@ -59,8 +63,14 @@ static void hipblas_gemv(float *d_y, const float *d_x) {
 }
 
 static void hipblas_finalize(void) {
+  gemv_log(GEMV_INFO, "hipblas_finalize: initialized = %d", initialized);
+  if (!initialized) return;
+
   check_hip_runtime(hipFree(d_A)), d_A = NULL;
   check_hipblas(hipblasDestroy(handle)), handle = NULL;
+  initialized = 0;
+
+  gemv_log(GEMV_INFO, "hipblas_finalize: done.");
 }
 
 void gemv_register_hipblas(void) {
