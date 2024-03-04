@@ -8,9 +8,8 @@
 static inline void check_hip_runtime_(hipError_t err, const char *file,
                                       const unsigned line) {
   if (err == hipSuccess) return;
-  fprintf(stderr, "HIP runtime error: %s in file: %s line: %u\n",
-          hipGetErrorString(err), file, line);
-  exit(EXIT_FAILURE);
+  gemv_log(GEMV_ERROR, "HIP runtime error:\"%s\" in file: %s line: %u",
+           hipGetErrorString(err), file, line);
 }
 
 #define check_hip_runtime(call) check_hip_runtime_((call), __FILE__, __LINE__)

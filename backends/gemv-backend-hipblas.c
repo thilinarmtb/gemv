@@ -29,9 +29,8 @@ static inline void check_hipblas_(hipblasStatus_t status, const char *file,
 
 #undef add_case
 
-  fprintf(stderr, "hipBLAS error: %s in file: \"%s\" line: %u\n", error, file,
-          line);
-  exit(EXIT_FAILURE);
+  gemv_log(GEMV_ERROR, "hipBLAS error: %s in file: \"%s\" line: %u", error,
+           file, line);
 }
 
 #define check_hipblas(call) check_hipblas_(call, __FILE__, __LINE__)
