@@ -50,10 +50,14 @@ static void hipblas_init(const struct gemv_t *gemv) {
   n = gemv->n, m = gemv->m;
   check_hip_runtime(hipMalloc((void **)&d_A, n * m * sizeof(double)));
 
-#if 0
+  size_t unit_size = gemv_unit_size(gemv->precision);
+  void *A = gemv_malloc(m * n * unit_size);
+  gemv_convert(A, gemv->A, n * m, gemv->precision);
+
   check_hip_runtime(
-      hipMemcpy(d_A, A, n * n * sizeof(float), hipMemcpyHostToDevice));
-#endif
+      hipMemcpy(d_A, A, n * m * unit_size, hipMemcpyHostToDevice));
+
+  gemv_free(&A);
 
   check_hipblas(hipblasCreate(&handle));
 

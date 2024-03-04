@@ -49,6 +49,21 @@ void gemv_backend_init(const struct gemv_t *gemv) {
 
 void gemv_backend_run(float *y, const float *x) {}
 
+void gemv_backend_copy(void *dest, const void *src, const size_t count,
+                       const gemv_direction_t direction) {
+  if (backend_active == -1)
+    gemv_log(GEMV_ERROR, "gemv_backend_copy: No active backend !");
+
+  gemv_log(
+      GEMV_INFO,
+      "gemv_backend_copy: src = %p, dest = %p, count = %zu, direction = %d",
+      src, dest, count, direction);
+
+  backend_list[backend_active].copy(dest, src, count, direction);
+
+  gemv_log(GEMV_INFO, "gemv_backend_copy: done.");
+}
+
 void gemv_backend_finalize(void) {
   gemv_log(GEMV_INFO, "gemv_backend_finalize: backend_active = %d",
            backend_active);

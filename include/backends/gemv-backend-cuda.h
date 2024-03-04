@@ -1,9 +1,9 @@
 #if !defined(__GEMV_BACKEND_CUDA_H__)
 #define __GEMV_BACKEND_CUDA_H__
 
-#include <cuda_runtime.h>
+#include "gemv-backend.h"
 
-#include "gemv-impl.h"
+#include <cuda_runtime.h>
 
 static inline void check_cuda_runtime_(cudaError_t err, const char *file,
                                        const unsigned line) {
@@ -21,6 +21,9 @@ static inline void cuda_copy(void *dest, const void *src, size_t count,
   switch (direction) {
   case GEMV_D2H: kind = cudaMemcpyDeviceToHost; break;
   case GEMV_H2D: kind = cudaMemcpyHostToDevice; break;
+  default:
+    gemv_log(GEMV_ERROR, "cuda_copy: Invalid direction = %d", direction);
+    break;
   }
 
   check_cuda_runtime(cudaMemcpy(dest, src, count, kind));

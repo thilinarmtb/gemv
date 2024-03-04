@@ -1,9 +1,9 @@
 #if !defined(__GEMV_BACKEND_HIP_H__)
 #define __GEMV_BACKEND_HIP_H__
 
-#include <hip/hip_runtime.h>
+#include "gemv-backend.h"
 
-#include "gemv-impl.h"
+#include <hip/hip_runtime.h>
 
 static inline void check_hip_runtime_(hipError_t err, const char *file,
                                       const unsigned line) {
@@ -21,6 +21,9 @@ static void hip_copy(void *dest, const void *src, size_t count,
   switch (direction) {
   case GEMV_D2H: kind = hipMemcpyDeviceToHost; break;
   case GEMV_H2D: kind = hipMemcpyHostToDevice; break;
+  default:
+    gemv_log(GEMV_ERROR, "hip_copy: Invalid direction = %d", direction);
+    break;
   }
 
   check_hip_runtime(hipMemcpy(dest, src, count, kind));

@@ -43,7 +43,7 @@ GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, unsigned n, unsigned m,
 GEMV_EXTERN void gemv_init_session(const struct gemv_t *gemv);
 
 typedef enum { GEMV_H2D = 0, GEMV_D2H = 1 } gemv_direction_t;
-GEMV_EXTERN void gemv_copy(void *dst, const void *src, size_t count,
+GEMV_EXTERN void gemv_copy(void *dest, const void *src, size_t count,
                            const gemv_direction_t direction);
 
 GEMV_EXTERN void gemv_run(void *y, const struct gemv_t *gemv, const void *x);

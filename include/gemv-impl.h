@@ -9,6 +9,7 @@
 #include "gemv.h"
 
 // Dynamic memory allocation functions.
+#define gemv_malloc(n) malloc((n))
 #define gemv_calloc(T, n) ((T *)calloc(n, sizeof(T)))
 #define gemv_realloc(ptr, T, n) (T *)realloc(ptr, (n) * sizeof(T))
 
@@ -49,6 +50,9 @@ gemv_backend_register(const char *name, void (*init)(const struct gemv_t *gemv),
 GEMV_INTERN void gemv_backend_init(const struct gemv_t *gemv);
 
 GEMV_INTERN void gemv_backend_run(float *y, const float *x);
+
+GEMV_INTERN void gemv_backend_copy(void *dest, const void *src, size_t count,
+                                   gemv_direction_t direction);
 
 GEMV_INTERN void gemv_backend_finalize(void);
 

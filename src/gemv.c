@@ -122,8 +122,10 @@ void gemv_finalize_session(void) {
   gemv_log(GEMV_INFO, "gemv_finalize_session: done.");
 }
 
-void gemv_copy(void *dst, const void *src, size_t count,
-               const gemv_direction_t direction) {}
+void gemv_copy(void *dest, const void *src, size_t count,
+               const gemv_direction_t direction) {
+  gemv_backend_copy(dest, src, count, direction);
+}
 
 void gemv_run(void *y, const struct gemv_t *gemv, const void *x) {}
 
