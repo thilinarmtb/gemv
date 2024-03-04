@@ -124,10 +124,18 @@ void gemv_finalize_session(void) {
 
 void gemv_copy(void *dest, const void *src, size_t count,
                const gemv_direction_t direction) {
+  gemv_log(GEMV_INFO,
+           "gemv_copy: dest = %p, src = %p, count = %zu, direction = %d", dest,
+           src, count, direction);
   gemv_backend_copy(dest, src, count, direction);
+  gemv_log(GEMV_INFO, "gemv_copy: done.");
 }
 
-void gemv_run(void *y, const struct gemv_t *gemv, const void *x) {}
+void gemv_run(void *y, const void *x, const struct gemv_t *gemv) {
+  gemv_log(GEMV_INFO, "gemv_run: x = %p, y = %p", x, y);
+  gemv_backend_run(y, x, gemv);
+  gemv_log(GEMV_INFO, "gemv_run: done.");
+}
 
 void gemv_finalize(struct gemv_t **gemv) {
   gemv_backend_deregister();

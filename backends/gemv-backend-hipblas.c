@@ -37,16 +37,15 @@ static inline void check_hipblas_(hipblasStatus_t status, const char *file,
 
 static hipblasHandle_t handle = NULL;
 static void *d_A = NULL;
-static unsigned n = 0, m = 0;
 static int initialized = 0;
 
 static void hipblas_init(const struct gemv_t *gemv) {
-  gemv_log(GEMV_INFO, "hipblas_init: initialized = %d", initialized);
+  gemv_log(GEMV_INFO, "hipblas_init: ...", initialized);
   if (initialized) return;
 
   check_hip_runtime(hipSetDevice(gemv->device));
 
-  n = gemv->n, m = gemv->m;
+  const unsigned n = gemv->n, m = gemv->m;
   check_hip_runtime(hipMalloc((void **)&d_A, n * m * sizeof(double)));
 
   size_t unit_size = gemv_unit_size(gemv->precision);
@@ -64,14 +63,25 @@ static void hipblas_init(const struct gemv_t *gemv) {
   gemv_log(GEMV_INFO, "hipblas_init: done.");
 }
 
-static void hipblas_gemv(float *d_y, const float *d_x) {
-  float alpha = 1.0f, beta = 0.0f;
-  check_hipblas(hipblasSgemv(handle, HIPBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1,
-                             &beta, d_y, 1));
+static void hipblas_gemv(void *d_y, const void *d_x,
+                         const struct gemv_t *gemv) {
+  float alpha_f = 1.0f, beta_f = 0.0f;
+  double alpha_d = 1.0, beta_d = 0.0;
+  switch (gemv->precision) {
+  case GEMV_FP32:
+    check_hipblas(hipblasSgemv(handle, HIPBLAS_OP_T, gemv->m, gemv->n, &alpha_f,
+                               d_A, gemv->n, d_x, 1, &beta_f, d_y, 1));
+    break;
+  case GEMV_FP64:
+    check_hipblas(hipblasDgemv(handle, HIPBLAS_OP_T, gemv->m, gemv->n, &alpha_d,
+                               d_A, gemv->n, d_x, 1, &beta_d, d_y, 1));
+    break;
+  default: break;
+  }
 }
 
 static void hipblas_finalize(void) {
-  gemv_log(GEMV_INFO, "hipblas_finalize: initialized = %d", initialized);
+  gemv_log(GEMV_INFO, "hipblas_finalize: ...", initialized);
   if (!initialized) return;
 
   check_hip_runtime(hipFree(d_A)), d_A = NULL;

@@ -18,7 +18,7 @@ static void cuda_init(const struct gemv_t *gemv) {
   initialized = 1;
 }
 
-static void cuda_gemv(float *d_y, const float *d_x) {}
+static void cuda_gemv(void *d_y, const void *d_x, const struct gemv_t *gemv) {}
 
 static void cuda_finalize(void) {
   check_cuda_runtime(cudaFree(d_A)), d_A = NULL;

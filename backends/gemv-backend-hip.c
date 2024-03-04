@@ -5,7 +5,7 @@ static unsigned n = 0, m = 0;
 static int initialized = 0;
 
 static void hip_init(const struct gemv_t *gemv) {
-  gemv_log(GEMV_INFO, "hip_init: initialized = %d", initialized);
+  gemv_log(GEMV_INFO, "hip_init: ...", initialized);
   if (initialized) return;
 
   check_hip_runtime(hipSetDevice(gemv->device));
@@ -25,10 +25,10 @@ static void hip_init(const struct gemv_t *gemv) {
   gemv_log(GEMV_INFO, "hip_init: done.");
 }
 
-static void hip_gemv(float *d_y, const float *d_x) {}
+static void hip_gemv(void *d_y, const void *d_x, const struct gemv_t *gemv) {}
 
 static void hip_finalize(void) {
-  gemv_log(GEMV_INFO, "hip_finalize: initialized = %d", initialized);
+  gemv_log(GEMV_INFO, "hip_finalize: ...", initialized);
   if (!initialized) return;
 
   check_hip_runtime(hipFree(d_A)), d_A = NULL;

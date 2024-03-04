@@ -46,7 +46,7 @@ typedef enum { GEMV_H2D = 0, GEMV_D2H = 1 } gemv_direction_t;
 GEMV_EXTERN void gemv_copy(void *dest, const void *src, size_t count,
                            const gemv_direction_t direction);
 
-GEMV_EXTERN void gemv_run(void *y, const struct gemv_t *gemv, const void *x);
+GEMV_EXTERN void gemv_run(void *y, const void *x, const struct gemv_t *gemv);
 
 GEMV_EXTERN void gemv_finalize_session(void);
 

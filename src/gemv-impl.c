@@ -11,13 +11,12 @@ static struct gemv_backend_t *backend_list = NULL;
 static unsigned backend_count = 0, backend_max_count = 0;
 static int backend_active = -1;
 
-void gemv_backend_register(const char *name,
-                           void (*init)(const struct gemv_t *gemv),
-                           void (*copy)(void *dest, const void *src,
-                                        size_t count,
-                                        gemv_direction_t direction),
-                           void (*run)(float *y, const float *x),
-                           void (*finalize)(void)) {
+void gemv_backend_register(
+    const char *name, void (*init)(const struct gemv_t *gemv),
+    void (*copy)(void *dest, const void *src, size_t count,
+                 gemv_direction_t direction),
+    void (*run)(void *y, const void *x, const struct gemv_t *gemv),
+    void (*finalize)(void)) {
   gemv_log(GEMV_INFO, "gemv_backend_register: backend = %s", name);
 
   if (backend_count == backend_max_count) {
@@ -47,7 +46,7 @@ void gemv_backend_init(const struct gemv_t *gemv) {
            backend_active);
 }
 
-void gemv_backend_run(float *y, const float *x) {}
+void gemv_backend_run(void *y, const void *x, const struct gemv_t *gemv) {}
 
 void gemv_backend_copy(void *dest, const void *src, const size_t count,
                        const gemv_direction_t direction) {
@@ -107,39 +106,6 @@ void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
     gemv_log(GEMV_ERROR, "gemv_set_backend_impl: backend \"%s\" not found.",
              backend_lower);
   gemv_log(GEMV_INFO, "gemv_set_backend_impl: done.");
-}
-
-void gemv_check_impl(const struct gemv_t *gemv) {
-  const size_t size = 8192;
-  double *A = gemv_calloc(double, size *size);
-  for (unsigned i = 0; i < size * size; i++) A[i] = (double)rand() / RAND_MAX;
-
-  float *x = gemv_calloc(float, size);
-  for (unsigned i = 0; i < size; i++) x[i] = (float)rand() / RAND_MAX;
-
-  float *y = gemv_calloc(float, size);
-
-  // Run the gemv:
-  gemv_backend_run(y, x);
-
-  // Check correctness:
-  float *y_ref = gemv_calloc(float, size);
-  for (unsigned i = 0; i < size; i++) {
-    float sum = 0.0f;
-    for (unsigned j = 0; j < size; j++) sum += A[i * size + j] * x[j];
-    y_ref[i] = sum;
-  }
-  for (unsigned i = 0; i < size; i++) {
-    if (fabs(y[i] - y_ref[i]) / y_ref[i] > 1e-5)
-      gemv_log(GEMV_ERROR, "gemv_check: y[%d] = %f != %f", i, y[i], y_ref[i]);
-  }
-  gemv_free(&y_ref);
-
-  gemv_log(GEMV_INFO, "gemv_check: pass.");
-
-  gemv_backend_finalize();
-
-  gemv_free(&A), gemv_free(&x), gemv_free(&y);
 }
 
 void gemv_free_(void **p) { free(*p), *p = NULL; }

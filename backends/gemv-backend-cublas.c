@@ -33,7 +33,7 @@ static void cublas_init(const struct gemv_t *gemv) {
   initialized = 1;
 }
 
-static void cublas_gemv(float *d_y, const float *d_x) {
+static void cublas_gemv(void *d_y, const void *d_x, const struct gemv_t *gemv) {
   float alpha = 1.0f, beta = 0.0f;
   cublasSgemv(handle, CUBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y, 1);
 }
