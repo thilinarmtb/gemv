@@ -9,6 +9,7 @@
 
 static struct gemv_backend_t *backend_list = NULL;
 static unsigned backend_count = 0, backend_max_count = 0;
+static int backend_active = -1;
 
 void gemv_backend_register(const char *name,
                            void (*init)(const struct gemv_t *gemv),
@@ -33,11 +34,15 @@ void gemv_backend_register(const char *name,
 
 void gemv_backend_init(const struct gemv_t *gemv) {
   backend_list[gemv->backend].init(gemv);
+  backend_active = gemv->backend;
 }
 
 void gemv_backend_run(float *y, const float *x) {}
 
-void gemv_backend_finalize(void) {}
+void gemv_backend_finalize(void) {
+  backend_list[backend_active].finalize();
+  backend_active = -1;
+}
 
 void gemv_backend_deregister(void) {
   for (unsigned i = 0; i < backend_count; i++)

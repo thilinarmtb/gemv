@@ -4,8 +4,27 @@
 
 static inline void check_hipblas_(hipblasStatus_t status, const char *file,
                                   const unsigned line) {
-  if (status == HIPBLAS_STATUS_SUCCESS) return;
-  fprintf(stderr, "hipBLAS error: %d in file: %s line: %u\n", status, file,
+  char *error = NULL;
+  switch (status) {
+  case HIPBLAS_STATUS_SUCCESS: return; break;
+#define add_case(A)                                                            \
+  case A: error = #A; break
+    add_case(HIPBLAS_STATUS_NOT_INITIALIZED);
+    add_case(HIPBLAS_STATUS_ALLOC_FAILED);
+    add_case(HIPBLAS_STATUS_INVALID_VALUE);
+    add_case(HIPBLAS_STATUS_MAPPING_ERROR);
+    add_case(HIPBLAS_STATUS_EXECUTION_FAILED);
+    add_case(HIPBLAS_STATUS_INTERNAL_ERROR);
+    add_case(HIPBLAS_STATUS_NOT_SUPPORTED);
+    add_case(HIPBLAS_STATUS_ARCH_MISMATCH);
+    add_case(HIPBLAS_STATUS_HANDLE_IS_NULLPTR);
+    add_case(HIPBLAS_STATUS_INVALID_ENUM);
+    add_case(HIPBLAS_STATUS_UNKNOWN);
+#undef add_case
+  default: break;
+  }
+
+  fprintf(stderr, "hipBLAS error: %s in file: \"%s\" line: %u\n", error, file,
           line);
   exit(EXIT_FAILURE);
 }
@@ -28,20 +47,20 @@ static void hipblas_init(const struct gemv_t *gemv) {
       hipMemcpy(d_A, A, n * n * sizeof(float), hipMemcpyHostToDevice));
 #endif
 
-  hipblasCreate(&handle);
+  check_hipblas(hipblasCreate(&handle));
 
   initialized = 1;
 }
 
 static void hipblas_gemv(float *d_y, const float *d_x) {
   float alpha = 1.0f, beta = 0.0f;
-  hipblasSgemv(handle, HIPBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1, &beta, d_y,
-               1);
+  check_hipblas(hipblasSgemv(handle, HIPBLAS_OP_T, n, n, &alpha, d_A, n, d_x, 1,
+                             &beta, d_y, 1));
 }
 
 static void hipblas_finalize(void) {
   check_hip_runtime(hipFree(d_A)), d_A = NULL;
-  hipblasDestroy(handle), handle = NULL;
+  check_hipblas(hipblasDestroy(handle)), handle = NULL;
 }
 
 void gemv_register_hipblas(void) {

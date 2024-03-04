@@ -108,6 +108,8 @@ void gemv_set_precision(struct gemv_t *gemv, const gemv_precision_t precision) {
 
 void gemv_init_session(const struct gemv_t *gemv) { gemv_backend_init(gemv); }
 
+void gemv_finalize_session(void) { gemv_backend_finalize(); }
+
 void gemv_copy(void *dst, const void *src, size_t count,
                const gemv_direction_t direction) {}
 

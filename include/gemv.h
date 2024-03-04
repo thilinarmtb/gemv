@@ -48,6 +48,8 @@ GEMV_EXTERN void gemv_copy(void *dst, const void *src, size_t count,
 
 GEMV_EXTERN void gemv_run(void *y, const struct gemv_t *gemv, const void *x);
 
+GEMV_EXTERN void gemv_finalize_session(void);
+
 GEMV_EXTERN void gemv_finalize(struct gemv_t **gemv);
 
 #endif // __GEMV_H__

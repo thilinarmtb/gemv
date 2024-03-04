@@ -16,6 +16,8 @@ int main(int argc, char *argv[]) {
 
   gemv_init_session(handle);
 
+  gemv_finalize_session();
+
   gemv_finalize(&handle);
 
   return 0;
