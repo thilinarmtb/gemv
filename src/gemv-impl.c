@@ -48,7 +48,12 @@ void gemv_backend_init(const struct gemv_t *gemv) {
 
 void gemv_backend_run(void *y, const void *x, const struct gemv_t *gemv) {
   if (backend_active == -1)
-    gemv_log(GEMV_ERROR, "gemv_backend_malloc: No active backend !");
+    gemv_log(GEMV_ERROR, "gemv_backend_run: No active backend !");
+
+  gemv_log(GEMV_INFO, "gemv_backend_run: y = %p, x = %p, gemv = %p", y, x,
+           gemv);
+  backend_list[backend_active].run(y, x, gemv);
+  gemv_log(GEMV_INFO, "gemv_backend_run: done.");
 }
 
 void gemv_backend_malloc(void **ptr, const size_t size) {

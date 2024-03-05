@@ -50,10 +50,13 @@ GEMV_EXTERN void gemv_device_free_(void **ptr);
 #define gemv_device_free(ptr) gemv_device_free_((void **)(ptr))
 
 typedef enum { GEMV_H2D = 0, GEMV_D2H = 1 } gemv_direction_t;
-GEMV_EXTERN void gemv_copy(void *dest, const void *src, size_t count,
-                           gemv_direction_t direction);
+GEMV_EXTERN void gemv_copy_(void *dest, const void *src, size_t count,
+                            gemv_direction_t direction);
+#define gemv_copy(dest, src, count, direction)                                 \
+  gemv_copy_((void *)dest, (void *)src, count, direction)
 
-GEMV_EXTERN void gemv_run(void *y, const void *x, const struct gemv_t *gemv);
+GEMV_EXTERN void gemv_run_(void *y, const void *x, const struct gemv_t *gemv);
+#define gemv_run(y, x, gemv) gemv_run_((void *)x, (void *)y, gemv)
 
 GEMV_EXTERN void gemv_finalize_session(void);
 

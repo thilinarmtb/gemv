@@ -10,7 +10,8 @@ static const char *log_level_to_str[] = {"INFO", "WARNING", "ERROR"};
 
 void gemv_set_verbose_impl(const gemv_verbose_t level) {
   if (level < GEMV_MUTE || level > GEMV_ERROR) {
-    fprintf(stderr, "gemv_set_verbose: Invalid verbose level: %d\n", level);
+    fprintf(stderr, "[ERROR] gemv_set_verbose: Invalid verbose level: %d\n",
+            level);
     exit(EXIT_FAILURE);
   }
 
@@ -18,7 +19,7 @@ void gemv_set_verbose_impl(const gemv_verbose_t level) {
 }
 
 void gemv_log(const gemv_verbose_t level, const char *fmt, ...) {
-  if (level <= GEMV_MUTE || level < log_level || level > GEMV_ERROR) return;
+  if (level <= GEMV_MUTE || log_level < level || level > GEMV_ERROR) return;
 
   char *fmt1 = gemv_calloc(char, 32 + strnlen(fmt, BUFSIZ));
   snprintf(fmt1, BUFSIZ, "[%s] ", log_level_to_str[level - 1]);

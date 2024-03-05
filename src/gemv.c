@@ -79,7 +79,7 @@ struct gemv_t *gemv_init(int *argc, char ***argv) {
 
 void gemv_set_verbose(const gemv_verbose_t verbose) {
   gemv_set_verbose_impl(verbose);
-  gemv_log(GEMV_INFO, "gemv_set_verbose: done.");
+  gemv_log(GEMV_INFO, "gemv_set_verbose: verbose = %d, done.", verbose);
 }
 
 void gemv_set_device(struct gemv_t *gemv, int device) {
@@ -127,8 +127,8 @@ void gemv_device_free_(void **ptr) {
   gemv_log(GEMV_INFO, "gemv_device_free: done.");
 }
 
-void gemv_copy(void *dest, const void *src, size_t count,
-               const gemv_direction_t direction) {
+void gemv_copy_(void *dest, const void *src, size_t count,
+                const gemv_direction_t direction) {
   gemv_log(GEMV_INFO,
            "gemv_copy: dest = %p, src = %p, count = %zu, direction = %d", dest,
            src, count, direction);
@@ -136,7 +136,7 @@ void gemv_copy(void *dest, const void *src, size_t count,
   gemv_log(GEMV_INFO, "gemv_copy: done.");
 }
 
-void gemv_run(void *y, const void *x, const struct gemv_t *gemv) {
+void gemv_run_(void *y, const void *x, const struct gemv_t *gemv) {
   gemv_log(GEMV_INFO, "gemv_run: x = %p, y = %p", x, y);
   gemv_backend_run(y, x, gemv);
   gemv_log(GEMV_INFO, "gemv_run: done.");
