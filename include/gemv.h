@@ -56,7 +56,7 @@ GEMV_EXTERN void gemv_copy_(void *dest, const void *src, size_t count,
   gemv_copy_((void *)dest, (void *)src, count, direction)
 
 GEMV_EXTERN void gemv_run_(void *y, const void *x, const struct gemv_t *gemv);
-#define gemv_run(y, x, gemv) gemv_run_((void *)x, (void *)y, gemv)
+#define gemv_run(y, x, gemv) gemv_run_((void *)y, (void *)x, gemv)
 
 GEMV_EXTERN void gemv_finalize_session(void);
 

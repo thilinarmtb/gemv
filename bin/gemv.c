@@ -1,20 +1,37 @@
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "gemv.h"
+
+#define N 8
 
 int main(int argc, char *argv[]) {
   struct gemv_t *handle = gemv_init(&argc, &argv);
 
-  gemv_set_verbose(GEMV_INFO);
-  gemv_set_precision(handle, GEMV_FP64);
+  double A[N * N];
+  for (unsigned i = 0; i < N * N; i++) A[i] = 1;
+  gemv_set_matrix(handle, N, N, A);
 
-  const double A[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-  gemv_set_matrix(handle, 3, 3, A);
+  double h_x[N], h_y[N];
+  for (unsigned i = 0; i < N; i++) h_x[i] = i;
 
   gemv_init_session(handle);
 
+  double *x, *y;
+  gemv_device_malloc(&x, N), gemv_device_malloc(&y, N);
+
+  gemv_copy(x, h_x, sizeof(double) * N, GEMV_H2D);
+
+  gemv_run(y, x, handle);
+
+  gemv_copy(h_y, y, sizeof(double) * N, GEMV_D2H);
+
+  gemv_device_free(&x), gemv_device_free(&y);
+
   gemv_finalize_session();
+
+  for (unsigned i = 0; i < N; i++) printf("y[%d] = %lf\n", i, h_y[i]);
 
   gemv_finalize(&handle);
 

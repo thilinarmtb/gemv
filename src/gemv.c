@@ -137,7 +137,7 @@ void gemv_copy_(void *dest, const void *src, size_t count,
 }
 
 void gemv_run_(void *y, const void *x, const struct gemv_t *gemv) {
-  gemv_log(GEMV_INFO, "gemv_run: x = %p, y = %p", x, y);
+  gemv_log(GEMV_INFO, "gemv_run: y = %p, x = %p", y, x);
   gemv_backend_run(y, x, gemv);
   gemv_log(GEMV_INFO, "gemv_run: done.");
 }

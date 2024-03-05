@@ -3,7 +3,7 @@
 static void *d_A = NULL;
 static int initialized = 0;
 
-static void hip_gemv(void *d_y, const void *d_x, const struct gemv_t *gemv) {}
+static void hip_run(void *d_y, const void *d_x, const struct gemv_t *gemv) {}
 
 static void hip_finalize(void) {
   gemv_log(GEMV_INFO, "hip_finalize: ...");
@@ -39,7 +39,7 @@ static void hip_init(struct gemv_backend_t *backend,
   backend->malloc = hip_malloc;
   backend->free = hip_free;
   backend->copy = hip_copy;
-  backend->run = hip_gemv;
+  backend->run = hip_run;
   backend->finalize = hip_finalize;
 
   hip_init_aux(gemv);

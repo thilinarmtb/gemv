@@ -39,18 +39,25 @@ static hipblasHandle_t handle = NULL;
 static void *d_A = NULL;
 static int initialized = 0;
 
-static void hipblas_gemv(void *d_y, const void *d_x,
-                         const struct gemv_t *gemv) {
+static void hipblas_run(void *d_y, const void *d_x, const struct gemv_t *gemv) {
+  if (!initialized)
+    gemv_log(GEMV_ERROR, "hipblas_run: hipBLAS backend is not initialized !");
+
+  gemv_log(GEMV_INFO, "y = %p, x = %p, m = %u, n = %u", d_y, d_x, gemv->m,
+           gemv->n);
+
   float alpha_f = 1.0f, beta_f = 0.0f;
   double alpha_d = 1.0, beta_d = 0.0;
   switch (gemv->precision) {
   case GEMV_FP32:
     check_hipblas(hipblasSgemv(handle, HIPBLAS_OP_T, gemv->m, gemv->n, &alpha_f,
-                               d_A, gemv->n, d_x, 1, &beta_f, d_y, 1));
+                               d_A, gemv->m, d_x, 1, &beta_f, d_y, 1));
+    gemv_log(GEMV_INFO, "hipblas_run: hipblasSgemv, done.");
     break;
   case GEMV_FP64:
     check_hipblas(hipblasDgemv(handle, HIPBLAS_OP_T, gemv->m, gemv->n, &alpha_d,
-                               d_A, gemv->n, d_x, 1, &beta_d, d_y, 1));
+                               d_A, gemv->m, d_x, 1, &beta_d, d_y, 1));
+    gemv_log(GEMV_INFO, "hipblas_run: hipblasDgemv, done.");
     break;
   default: break;
   }
@@ -74,6 +81,8 @@ static void hipblas_init_aux(const struct gemv_t *gemv) {
   check_hip_runtime(hipMalloc((void **)&d_A, m * n * sizeof(double)));
 
   const size_t unit_size = gemv_unit_size(gemv->precision);
+  gemv_log(GEMV_INFO, "hipblas_init_aux: unit_size = %zu", unit_size);
+
   void *const A = gemv_malloc(m * n * unit_size);
   gemv_convert(A, gemv->A, m * n, gemv->precision);
 
@@ -93,7 +102,7 @@ static void hipblas_init(struct gemv_backend_t *backend,
   backend->malloc = hip_malloc;
   backend->free = hip_free;
   backend->copy = hip_copy;
-  backend->run = hipblas_gemv;
+  backend->run = hipblas_run;
   backend->finalize = hipblas_finalize;
 
   hipblas_init_aux(gemv);
