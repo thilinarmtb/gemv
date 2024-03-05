@@ -27,4 +27,15 @@ static size_t gemv_unit_size(const gemv_precision_t precision) {
   }
 }
 
+static const char *gemv_precision_to_str(const gemv_precision_t precision) {
+  switch (precision) {
+  case GEMV_FP64: return "double"; break;
+  case GEMV_FP32: return "float"; break;
+  default:
+    gemv_log(GEMV_ERROR, "gemv_precision_to_str: Invlaid precision = %d",
+             precision);
+    return NULL;
+    break;
+  }
+}
 #endif // __GEMV_BACKEND_H__
