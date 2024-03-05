@@ -39,30 +39,6 @@ static hipblasHandle_t handle = NULL;
 static void *d_A = NULL;
 static int initialized = 0;
 
-static void hipblas_init(const struct gemv_t *gemv) {
-  gemv_log(GEMV_INFO, "hipblas_init: ...", initialized);
-  if (initialized) return;
-
-  check_hip_runtime(hipSetDevice(gemv->device));
-
-  const unsigned n = gemv->n, m = gemv->m;
-  check_hip_runtime(hipMalloc((void **)&d_A, n * m * sizeof(double)));
-
-  size_t unit_size = gemv_unit_size(gemv->precision);
-  void *A = gemv_malloc(m * n * unit_size);
-  gemv_convert(A, gemv->A, n * m, gemv->precision);
-
-  check_hip_runtime(
-      hipMemcpy(d_A, A, n * m * unit_size, hipMemcpyHostToDevice));
-
-  gemv_free(&A);
-
-  check_hipblas(hipblasCreate(&handle));
-
-  initialized = 1;
-  gemv_log(GEMV_INFO, "hipblas_init: done.");
-}
-
 static void hipblas_gemv(void *d_y, const void *d_x,
                          const struct gemv_t *gemv) {
   float alpha_f = 1.0f, beta_f = 0.0f;
@@ -81,7 +57,7 @@ static void hipblas_gemv(void *d_y, const void *d_x,
 }
 
 static void hipblas_finalize(void) {
-  gemv_log(GEMV_INFO, "hipblas_finalize: ...", initialized);
+  gemv_log(GEMV_INFO, "hipblas_finalize: ...");
   if (!initialized) return;
 
   check_hip_runtime(hipFree(d_A)), d_A = NULL;
@@ -91,7 +67,41 @@ static void hipblas_finalize(void) {
   gemv_log(GEMV_INFO, "hipblas_finalize: done.");
 }
 
+static void hipblas_init_aux(const struct gemv_t *gemv) {
+  check_hip_runtime(hipSetDevice(gemv->device));
+
+  const unsigned m = gemv->m, n = gemv->n;
+  check_hip_runtime(hipMalloc((void **)&d_A, m * n * sizeof(double)));
+
+  const size_t unit_size = gemv_unit_size(gemv->precision);
+  void *const A = gemv_malloc(m * n * unit_size);
+  gemv_convert(A, gemv->A, m * n, gemv->precision);
+
+  check_hip_runtime(
+      hipMemcpy(d_A, A, m * n * unit_size, hipMemcpyHostToDevice));
+
+  gemv_free(&A);
+
+  check_hipblas(hipblasCreate(&handle));
+}
+
+static void hipblas_init(struct gemv_backend_t *backend,
+                         const struct gemv_t *gemv) {
+  gemv_log(GEMV_INFO, "hipblas_init: ...", initialized);
+  if (initialized) return;
+
+  backend->malloc = hip_malloc;
+  backend->free = hip_free;
+  backend->copy = hip_copy;
+  backend->run = hipblas_gemv;
+  backend->finalize = hipblas_finalize;
+
+  hipblas_init_aux(gemv);
+
+  initialized = 1;
+  gemv_log(GEMV_INFO, "hipblas_init: done.");
+}
+
 void gemv_register_hipblas(void) {
-  gemv_backend_register("hipblas", hipblas_init, hip_copy, hipblas_gemv,
-                        hipblas_finalize);
+  gemv_backend_register("hipblas", hipblas_init);
 }

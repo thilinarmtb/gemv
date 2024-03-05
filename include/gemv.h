@@ -27,7 +27,7 @@ typedef enum {
   GEMV_ERROR = 3
 } gemv_verbose_t;
 
-GEMV_EXTERN void gemv_set_verbose(const gemv_verbose_t verbose);
+GEMV_EXTERN void gemv_set_verbose(gemv_verbose_t verbose);
 
 GEMV_EXTERN void gemv_set_device(struct gemv_t *gemv, int device);
 
@@ -35,16 +35,23 @@ GEMV_EXTERN void gemv_set_backend(struct gemv_t *gemv, const char *backend);
 
 typedef enum { GEMV_FP64 = 0, GEMV_FP32 = 1 } gemv_precision_t;
 GEMV_EXTERN void gemv_set_precision(struct gemv_t *gemv,
-                                    const gemv_precision_t precision);
+                                    gemv_precision_t precision);
 
-GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, unsigned n, unsigned m,
+GEMV_EXTERN void gemv_set_matrix(struct gemv_t *gemv, unsigned m, unsigned n,
                                  const double *A);
 
 GEMV_EXTERN void gemv_init_session(const struct gemv_t *gemv);
 
+GEMV_EXTERN void gemv_device_malloc_(void **ptr, size_t size);
+#define gemv_device_malloc(ptr, n)                                             \
+  gemv_device_malloc_((void **)(ptr), sizeof(**(ptr)) * (n))
+
+GEMV_EXTERN void gemv_device_free_(void **ptr);
+#define gemv_device_free(ptr) gemv_device_free_((void **)(ptr))
+
 typedef enum { GEMV_H2D = 0, GEMV_D2H = 1 } gemv_direction_t;
 GEMV_EXTERN void gemv_copy(void *dest, const void *src, size_t count,
-                           const gemv_direction_t direction);
+                           gemv_direction_t direction);
 
 GEMV_EXTERN void gemv_run(void *y, const void *x, const struct gemv_t *gemv);
 

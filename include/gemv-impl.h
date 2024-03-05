@@ -28,7 +28,9 @@ struct gemv_t {
 
 struct gemv_backend_t {
   char name[32];
-  void (*init)(const struct gemv_t *gemv);
+  void (*init)(struct gemv_backend_t *backend, const struct gemv_t *gemv);
+  void (*malloc)(void **ptr, const size_t size);
+  void (*free)(void *ptr);
   void (*copy)(void *dest, const void *src, size_t count,
                gemv_direction_t direction);
   void (*run)(void *, const void *, const struct gemv_t *);
@@ -41,13 +43,14 @@ GEMV_INTERN void gemv_set_backend_impl(struct gemv_t *gemv,
 GEMV_INTERN void gemv_set_verbose_impl(const gemv_verbose_t level);
 
 GEMV_INTERN void gemv_backend_register(
-    const char *name, void (*init)(const struct gemv_t *gemv),
-    void (*copy)(void *dest, const void *src, size_t count,
-                 gemv_direction_t direction),
-    void (*run)(void *y, const void *x, const struct gemv_t *gemv),
-    void (*finalize)(void));
+    const char *name,
+    void (*init)(struct gemv_backend_t *backend, const struct gemv_t *gemv));
 
 GEMV_INTERN void gemv_backend_init(const struct gemv_t *gemv);
+
+GEMV_INTERN void gemv_backend_malloc(void **ptr, size_t size);
+
+GEMV_INTERN void gemv_backend_free(void **ptr);
 
 GEMV_INTERN void gemv_backend_run(void *y, const void *x,
                                   const struct gemv_t *gemv);

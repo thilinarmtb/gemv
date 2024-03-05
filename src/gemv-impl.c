@@ -11,12 +11,9 @@ static struct gemv_backend_t *backend_list = NULL;
 static unsigned backend_count = 0, backend_max_count = 0;
 static int backend_active = -1;
 
-void gemv_backend_register(
-    const char *name, void (*init)(const struct gemv_t *gemv),
-    void (*copy)(void *dest, const void *src, size_t count,
-                 gemv_direction_t direction),
-    void (*run)(void *y, const void *x, const struct gemv_t *gemv),
-    void (*finalize)(void)) {
+void gemv_backend_register(const char *name,
+                           void (*init)(struct gemv_backend_t *backend,
+                                        const struct gemv_t *gemv)) {
   gemv_log(GEMV_INFO, "gemv_backend_register: backend = %s", name);
 
   if (backend_count == backend_max_count) {
@@ -27,9 +24,11 @@ void gemv_backend_register(
 
   strncpy(backend_list[backend_count].name, name, GEMV_MAX_BACKEND_LENGTH);
   backend_list[backend_count].init = init;
-  backend_list[backend_count].copy = copy;
-  backend_list[backend_count].run = run;
-  backend_list[backend_count].finalize = finalize;
+  backend_list[backend_count].malloc = NULL;
+  backend_list[backend_count].free = NULL;
+  backend_list[backend_count].copy = NULL;
+  backend_list[backend_count].run = NULL;
+  backend_list[backend_count].finalize = NULL;
   backend_count++;
 
   gemv_log(GEMV_INFO, "gemv_backend_register: backend_count = %d, done.",
@@ -37,16 +36,38 @@ void gemv_backend_register(
 }
 
 void gemv_backend_init(const struct gemv_t *gemv) {
-  gemv_log(GEMV_INFO, "gemv_backend_init: ...");
+  gemv_log(GEMV_INFO, "gemv_backend_init: backend = %d", gemv->backend);
 
-  backend_list[gemv->backend].init(gemv);
+  struct gemv_backend_t *backend = &backend_list[gemv->backend];
+  backend->init(backend, gemv);
   backend_active = gemv->backend;
 
   gemv_log(GEMV_INFO, "gemv_backend_init: backend_active = %d, done.",
            backend_active);
 }
 
-void gemv_backend_run(void *y, const void *x, const struct gemv_t *gemv) {}
+void gemv_backend_run(void *y, const void *x, const struct gemv_t *gemv) {
+  if (backend_active == -1)
+    gemv_log(GEMV_ERROR, "gemv_backend_malloc: No active backend !");
+}
+
+void gemv_backend_malloc(void **ptr, const size_t size) {
+  if (backend_active == -1)
+    gemv_log(GEMV_ERROR, "gemv_backend_malloc: No active backend !");
+
+  gemv_log(GEMV_INFO, "gemv_backend_malloc: size = %zu", size);
+  backend_list[backend_active].malloc(ptr, size);
+  gemv_log(GEMV_INFO, "gemv_backend_malloc: ptr = %p, done.", *ptr);
+}
+
+void gemv_backend_free(void **ptr) {
+  if (backend_active == -1)
+    gemv_log(GEMV_ERROR, "gemv_backend_malloc: No active backend !");
+
+  gemv_log(GEMV_INFO, "gemv_backend_free: ptr = %p", *ptr);
+  backend_list[backend_active].free(*ptr), *ptr = NULL;
+  gemv_log(GEMV_INFO, "gemv_backend_free: done.");
+}
 
 void gemv_backend_copy(void *dest, const void *src, const size_t count,
                        const gemv_direction_t direction) {
@@ -102,9 +123,10 @@ void gemv_set_backend_impl(struct gemv_t *gemv, const char *backend) {
     break;
   }
 
-  if (gemv->backend == -1)
+  if (gemv->backend == -1) {
     gemv_log(GEMV_ERROR, "gemv_set_backend_impl: backend \"%s\" not found.",
              backend_lower);
+  }
   gemv_log(GEMV_INFO, "gemv_set_backend_impl: done.");
 }
 

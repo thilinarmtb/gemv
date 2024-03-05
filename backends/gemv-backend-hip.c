@@ -1,34 +1,12 @@
 #include "backends/gemv-backend-hip.h"
 
 static void *d_A = NULL;
-static unsigned n = 0, m = 0;
 static int initialized = 0;
-
-static void hip_init(const struct gemv_t *gemv) {
-  gemv_log(GEMV_INFO, "hip_init: ...", initialized);
-  if (initialized) return;
-
-  check_hip_runtime(hipSetDevice(gemv->device));
-  n = gemv->n, m = gemv->m;
-  check_hip_runtime(hipMalloc((void **)&d_A, n * m * sizeof(double)));
-
-  size_t unit_size = gemv_unit_size(gemv->precision);
-  void *A = gemv_malloc(m * n * unit_size);
-  gemv_convert(A, gemv->A, n * m, gemv->precision);
-
-  check_hip_runtime(
-      hipMemcpy(d_A, A, n * n * sizeof(float), hipMemcpyHostToDevice));
-
-  gemv_free(&A);
-
-  initialized = 1;
-  gemv_log(GEMV_INFO, "hip_init: done.");
-}
 
 static void hip_gemv(void *d_y, const void *d_x, const struct gemv_t *gemv) {}
 
 static void hip_finalize(void) {
-  gemv_log(GEMV_INFO, "hip_finalize: ...", initialized);
+  gemv_log(GEMV_INFO, "hip_finalize: ...");
   if (!initialized) return;
 
   check_hip_runtime(hipFree(d_A)), d_A = NULL;
@@ -37,6 +15,37 @@ static void hip_finalize(void) {
   gemv_log(GEMV_INFO, "hip_finalize: done.");
 }
 
-void gemv_register_hip(void) {
-  gemv_backend_register("hip", hip_init, hip_copy, hip_gemv, hip_finalize);
+static void hip_init_aux(const struct gemv_t *gemv) {
+  check_hip_runtime(hipSetDevice(gemv->device));
+
+  const unsigned m = gemv->m, n = gemv->n;
+  check_hip_runtime(hipMalloc((void **)&d_A, m * n * sizeof(double)));
+
+  const size_t unit_size = gemv_unit_size(gemv->precision);
+  void *const A = gemv_malloc(m * n * unit_size);
+  gemv_convert(A, gemv->A, m * n, gemv->precision);
+
+  check_hip_runtime(
+      hipMemcpy(d_A, A, m * n * unit_size, hipMemcpyHostToDevice));
+
+  gemv_free(&A);
 }
+
+static void hip_init(struct gemv_backend_t *backend,
+                     const struct gemv_t *gemv) {
+  gemv_log(GEMV_INFO, "hip_init: ...");
+  if (initialized) return;
+
+  backend->malloc = hip_malloc;
+  backend->free = hip_free;
+  backend->copy = hip_copy;
+  backend->run = hip_gemv;
+  backend->finalize = hip_finalize;
+
+  hip_init_aux(gemv);
+
+  initialized = 1;
+  gemv_log(GEMV_INFO, "hip_init: done.");
+}
+
+void gemv_register_hip(void) { gemv_backend_register("hip", hip_init); }
