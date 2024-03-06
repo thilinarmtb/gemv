@@ -5,11 +5,11 @@
 
 #include <hip/hip_runtime.h>
 
-static inline void check_hip_runtime_(hipError_t err, const char *file,
+static inline void check_hip_runtime_(hipError_t status, const char *file,
                                       const unsigned line) {
-  if (err == hipSuccess) return;
+  if (status == hipSuccess) return;
   gemv_log(GEMV_ERROR, "HIP runtime error:\"%s\" in file: %s line: %u",
-           hipGetErrorString(err), file, line);
+           hipGetErrorString(status), file, line);
 }
 
 #define check_hip_runtime(call) check_hip_runtime_((call), __FILE__, __LINE__)

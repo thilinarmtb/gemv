@@ -2,6 +2,16 @@
 
 #include <hip/hiprtc.h>
 
+static inline void check_hip_rtc_(hiprtcResult status, const char *file,
+                                  const unsigned line) {
+  if (status == HIPRTC_SUCCESS) return;
+  const char *error = hiprtcGetErrorString(status);
+  gemv_log(GEMV_ERROR, "HIPRTC error: \"%s\" in file: %s line: %u", error, file,
+           line);
+}
+
+#define check_hip_rtc(call) check_hip_rtc_((call), __FILE__, __LINE__)
+
 static void *d_A = NULL;
 static int initialized = 0;
 
@@ -29,8 +39,8 @@ static void hip_run(void *d_y, const void *d_x, const struct gemv_t *gemv) {
            gemv->n);
 
   void *arguments[] = {&d_y, &d_A, &d_x, (void *)&gemv->m, (void *)&gemv->n};
-  hipModuleLaunchKernel(kernel, (gemv->m + 31) / 32, 1, 1, 32, 1, 1, 0, 0,
-                        arguments, NULL);
+  check_hip_runtime(hipModuleLaunchKernel(kernel, (gemv->m + 31) / 32, 1, 1, 32,
+                                          1, 1, 0, 0, arguments, NULL));
 }
 
 static void hip_finalize(void) {
@@ -38,7 +48,7 @@ static void hip_finalize(void) {
   if (!initialized) return;
 
   check_hip_runtime(hipFree(d_A)), d_A = NULL;
-  hipModuleUnload(module), module = NULL, kernel = NULL;
+  check_hip_runtime(hipModuleUnload(module)), module = NULL, kernel = NULL;
   initialized = 0;
 
   gemv_log(GEMV_INFO, "hip_finalize: done.");
@@ -66,28 +76,24 @@ static void hip_init_aux(const struct gemv_t *gemv) {
   gemv_log(GEMV_INFO, "hip_init_aux: source = \n%s", source);
 
   hiprtcProgram program = NULL;
-  hiprtcCreateProgram(&program, source, NULL, 0, NULL, NULL);
+  check_hip_rtc(hiprtcCreateProgram(&program, source, NULL, 0, NULL, NULL));
   hiprtcResult status = hiprtcCompileProgram(program, 0, NULL);
   if (status != HIPRTC_SUCCESS) {
-    const char *error = hiprtcGetErrorString(status);
-
     size_t size;
-    hiprtcGetProgramLogSize(program, &size);
+    check_hip_rtc(hiprtcGetProgramLogSize(program, &size));
     char *log = gemv_calloc(char, size + 1);
-    hiprtcGetProgramLog(program, log);
+    check_hip_rtc(hiprtcGetProgramLog(program, log));
 
-    fprintf(stderr, "error = %s\n", error);
     fprintf(stderr, "log = %s\n", log);
     gemv_free(&log);
-
     gemv_log(GEMV_ERROR, "hip_init_aux: Kernel compilation failed !");
   }
 
   size_t size;
-  hiprtcGetCodeSize(program, &size);
+  check_hip_rtc(hiprtcGetCodeSize(program, &size));
   char *binary_data = gemv_calloc(char, size + 1);
-  hiprtcGetCode(program, binary_data);
-  hiprtcDestroyProgram(&program);
+  check_hip_rtc(hiprtcGetCode(program, binary_data));
+  check_hip_rtc(hiprtcDestroyProgram(&program));
 
   check_hip_runtime(hipModuleLoadData(&module, binary_data));
   gemv_free(&binary_data);
