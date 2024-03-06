@@ -78,18 +78,19 @@ static void hip_init_aux(const struct gemv_t *gemv) {
   hiprtcProgram program = NULL;
   check_hip_rtc(hiprtcCreateProgram(&program, source, NULL, 0, NULL, NULL));
   hiprtcResult status = hiprtcCompileProgram(program, 0, NULL);
-  if (status != HIPRTC_SUCCESS) {
-    size_t size;
-    check_hip_rtc(hiprtcGetProgramLogSize(program, &size));
-    char *log = gemv_calloc(char, size + 1);
-    check_hip_rtc(hiprtcGetProgramLog(program, log));
+  if (status == HIPRTC_SUCCESS) goto generate_kernel;
 
-    fprintf(stderr, "log = %s\n", log);
-    gemv_free(&log);
-    gemv_log(GEMV_ERROR, "hip_init_aux: Kernel compilation failed !");
-  }
+  size_t log_size;
+  check_hip_rtc(hiprtcGetProgramLogSize(program, &log_size));
+  char *log = gemv_calloc(char, log_size + 1);
+  check_hip_rtc(hiprtcGetProgramLog(program, log));
+  fprintf(stderr, "[ERROR] Kernel compilation error:\n%s\n", log);
+  fflush(stderr);
+  gemv_free(&log);
+  gemv_log(GEMV_ERROR, "hip_init_aux: Kernel compilation failed !");
 
   size_t size;
+generate_kernel:
   check_hip_rtc(hiprtcGetCodeSize(program, &size));
   char *binary_data = gemv_calloc(char, size + 1);
   check_hip_rtc(hiprtcGetCode(program, binary_data));

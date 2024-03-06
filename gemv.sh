@@ -17,7 +17,7 @@ function print_help() {
 
 # Set default values.
 : ${GEMV_CC:=cc}
-: ${GEMV_CFLAGS:="-O3 -g -mtune=native -march=native"}
+: ${GEMV_CFLAGS:="-O2 -g -mtune=native -march=native"}
 : ${GEMV_BUILD_TYPE:=Release}
 : ${GEMV_INSTALL_PREFIX:=`pwd`/install}
 : ${GEMV_BUILD_DIR:=`pwd`/build}
