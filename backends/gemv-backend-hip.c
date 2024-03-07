@@ -18,6 +18,9 @@ static int initialized = 0;
 static hipModule_t module = NULL;
 static hipFunction_t kernel = NULL;
 
+static int block_size = 32;
+static int kernel_id = 1;
+
 const char *gemv_kernels[] = {
     "extern \"C\" __global__ void gemv(%s *y, const %s *A, const %s *x, const "
     "unsigned M, "
@@ -85,18 +88,17 @@ static void hip_init_aux(const struct gemv_t *gemv) {
   char source[BUFSIZ];
   const char *precision = gemv_precision_to_str(gemv->precision);
 
-  int kernel_id = 1;
   switch (kernel_id) {
   case 0:
     snprintf(source, BUFSIZ, gemv_kernels[0], precision, precision, precision,
              precision);
     break;
   case 1:
-    snprintf(source, BUFSIZ, gemv_kernels[1], 32, precision, precision,
+    snprintf(source, BUFSIZ, gemv_kernels[1], block_size, precision, precision,
              precision, precision);
     break;
   default:
-    gemv_log(GEMV_ERROR, "hip_init_aux: Invalid kernel id = %d", kernel_id);
+    gemv_log(GEMV_ERROR, "hip_init_aux: invalid kernel id = %d", kernel_id);
     break;
   }
   gemv_log(GEMV_INFO, "hip_init_aux: kernel id = %d, source = \n%s", kernel_id,
@@ -111,10 +113,10 @@ static void hip_init_aux(const struct gemv_t *gemv) {
   check_hip_rtc(hiprtcGetProgramLogSize(program, &log_size));
   char *log = gemv_calloc(char, log_size + 1);
   check_hip_rtc(hiprtcGetProgramLog(program, log));
-  fprintf(stderr, "[ERROR] Kernel compilation error:\n%s\n", log);
+  fprintf(stderr, "[ERROR] hip_init_aux: kernel compilation error:\n%s\n", log);
   fflush(stderr);
   gemv_free(&log);
-  gemv_log(GEMV_ERROR, "hip_init_aux: Kernel compilation failed !");
+  gemv_log(GEMV_ERROR, "hip_init_aux: kernel compilation failed !");
 
   size_t size;
 generate_kernel:
