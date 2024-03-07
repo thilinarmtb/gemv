@@ -21,11 +21,11 @@ int main(int argc, char *argv[]) {
   double *x, *y;
   gemv_device_malloc(&x, N), gemv_device_malloc(&y, N);
 
-  gemv_copy(x, h_x, sizeof(double) * N, GEMV_H2D);
+  gemv_copy(x, h_x, N, GEMV_H2D);
 
   gemv_run(y, x, handle);
 
-  gemv_copy(h_y, y, sizeof(double) * N, GEMV_D2H);
+  gemv_copy(h_y, y, N, GEMV_D2H);
 
   gemv_device_free(&x), gemv_device_free(&y);
 
