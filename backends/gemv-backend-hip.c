@@ -18,18 +18,32 @@ static int initialized = 0;
 static hipModule_t module = NULL;
 static hipFunction_t kernel = NULL;
 
-const char *gemv_kernel_0 =
+const char *gemv_kernels[] = {
     "extern \"C\" __global__ void gemv(%s *y, const %s *A, const %s *x, const "
-    "unsigned m, "
-    "const unsigned n) {\n"
-    "  int idx = blockIdx.x * blockDim.x + threadIdx.x;\n"
-    "  if (idx < m) {\n"
+    "unsigned M, "
+    "const unsigned N) {\n"
+    "  int row = blockIdx.x * blockDim.x + threadIdx.x;\n"
+    "  if (row < M) {\n"
     "    %s dot = 0;\n"
-    "    for (int i = 0; i < n; i++)\n"
-    "      dot += A[idx * n + i] * x[i];\n"
-    "    y[idx] = dot;\n"
+    "    for (int i = 0; i < N; i++)\n"
+    "      dot += A[row * N + i] * x[i];\n"
+    "    y[row] = dot;\n"
     "  }\n"
-    "}\n";
+    "}\n",
+    "#define BLOCK_SIZE %d\n"
+    "\n"
+    "extern \"C\" __global__ void gemv(%s *y, const %s *A, const %s *x, const "
+    "unsigned M, "
+    "const unsigned N) {\n"
+    "  int row = blockIdx.x * blockDim.x + threadIdx.x;\n"
+    "  if (row < M) {\n"
+    "    %s dot = 0;\n"
+    "    for (int i = 0; i < N; i++) {\n"
+    "      dot += A[row * N + i] * x[i];\n"
+    "    }\n"
+    "    y[row] = dot;\n"
+    "  }\n"
+    "}\n"};
 
 static void hip_run(void *d_y, const void *d_x, const struct gemv_t *gemv) {
   if (!initialized)
@@ -66,14 +80,27 @@ static void hip_init_aux(const struct gemv_t *gemv) {
 
   check_hip_runtime(
       hipMemcpy(d_A, A, m * n * unit_size, hipMemcpyHostToDevice));
-
   gemv_free(&A);
 
   char source[BUFSIZ];
   const char *precision = gemv_precision_to_str(gemv->precision);
-  snprintf(source, BUFSIZ, gemv_kernel_0, precision, precision, precision,
-           precision);
-  gemv_log(GEMV_INFO, "hip_init_aux: source = \n%s", source);
+
+  int kernel_id = 1;
+  switch (kernel_id) {
+  case 0:
+    snprintf(source, BUFSIZ, gemv_kernels[0], precision, precision, precision,
+             precision);
+    break;
+  case 1:
+    snprintf(source, BUFSIZ, gemv_kernels[1], 32, precision, precision,
+             precision, precision);
+    break;
+  default:
+    gemv_log(GEMV_ERROR, "hip_init_aux: Invalid kernel id = %d", kernel_id);
+    break;
+  }
+  gemv_log(GEMV_INFO, "hip_init_aux: kernel id = %d, source = \n%s", kernel_id,
+           source);
 
   hiprtcProgram program = NULL;
   check_hip_rtc(hiprtcCreateProgram(&program, source, NULL, 0, NULL, NULL));

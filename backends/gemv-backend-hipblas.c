@@ -88,7 +88,6 @@ static void hipblas_init_aux(const struct gemv_t *gemv) {
 
   check_hip_runtime(
       hipMemcpy(d_A, A, m * n * unit_size, hipMemcpyHostToDevice));
-
   gemv_free(&A);
 
   check_hipblas(hipblasCreate(&handle));
